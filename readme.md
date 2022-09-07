@@ -2,9 +2,17 @@
 
 
 
-#### 1. Environment based on Docker 
+#### 1. Prerequisites based on Docker 
 
-Doc
+#### Pangolin 
+
+#### Eigen 
+
+#### OpenCV 
+
+#### g2o and gtsam 
+
+*Two popular optimization libraries could be installed here to take care of different preferences.* 
 
 #### 2. Simulation introduction 
 
