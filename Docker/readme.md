@@ -23,7 +23,7 @@ To use local VS Code, we share local documents to the docker container by 5900 P
 docker run -itd -v /home/your_name/Documents/VENOM/:/home/VENOM/ -p 5900:5900 -e PASSWORD=password InddorSLAM/venom
 ```
 
-**1.3 Open VNC Viewer ** 
+**1.3 Open VNC Viewer** 
 
 ```
 # input the following address on your VNC Viewer

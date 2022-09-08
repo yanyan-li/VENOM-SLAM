@@ -19,3 +19,5 @@
 Red point are ground truth **landmarks**, while reconstructed **mappoints** generated from noisy measurements are yellow. 
 
 ![environment](images/environment.png)
+
+![sphere](images/sphere.png)
