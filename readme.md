@@ -4,8 +4,8 @@
 
 #### 1. Prerequisites based on Docker 
 
-Cloning the repo, and it is easy to build your own image and container. 
-
+Clone the repo, and it is easy to build your own image and container based on the Dockerfile proposed in the **Docker** folder.
+The docker environment contains the following  libs.
 #### Pangolin 
 
 #### Eigen 
