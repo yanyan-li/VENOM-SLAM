@@ -4,6 +4,8 @@
 
 #### 1. Prerequisites based on Docker 
 
+Cloning the repo, and it is easy to build your own image and container. 
+
 #### Pangolin 
 
 #### Eigen 
