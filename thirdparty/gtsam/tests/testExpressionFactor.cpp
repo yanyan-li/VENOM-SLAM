@@ -231,7 +231,7 @@ TEST(ExpressionFactor, Shallow) {
   Pose3_ x_(1);
   Point3_ p_(2);
 
-  // Construct expression, concise version
+  // Construct expression, concise evrsion
   Point2_ expression = project(transformTo(x_, p_));
 
   // Get and check keys and dims
