@@ -13,7 +13,7 @@ VNC Viewer could be found [here](https://www.realvnc.com/en/connect/download/vie
 ```
 cd  Docker
 docker build -t indoorslam/venom .
-``` 
+```
 **docker image ls**, you can find the built image. 
 
 
@@ -25,6 +25,10 @@ To use local VS Code, we share local documents to the docker container by 5900 P
 # local address for the documents: /home/your_name/Documents/VENOM/
 docker run -itd --name=venom-simulation -v /home/yanyan/Documents/VENOM-master:/home/VENOM/ -p 5900:5900 -e PASSWORD=password indoorslam/venom 
 ```
+
+When you use your VS code IDE to connect the container, you will see 
+
+![container](../images/container.png)
 
 **1.3 Open VNC Viewer** 
 
