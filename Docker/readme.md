@@ -26,9 +26,9 @@ To use local VS Code, we share local documents to the docker container by 5900 P
 docker run -itd --name=venom-simulation -v /home/yanyan/Documents/VENOM-master:/home/VENOM/ -p 5900:5900 -e PASSWORD=password indoorslam/venom 
 ```
 
-When you use your VS code IDE to connect the container, you will see 
+When you use your VS code IDE to connect the container, you will see the left image. When you find the **venom folder** in your vnc terminal, you will see the right image.   
 
-![container](../images/container.png)
+![container](../images/container.png)<img src="../images/vnc-terminal.png" alt="vnc-terminal" style="zoom:50%;" />
 
 **1.3 Open VNC Viewer** 
 
