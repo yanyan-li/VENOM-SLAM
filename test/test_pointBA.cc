@@ -1,13 +1,14 @@
 /*
 * @Author: yanyan.li yanyan.li.camp@gmail.com
 * @Date: 2022-08-30 07:38:57
-* @LastEditors: yanyan.li yanyan.li.camp@gmail.com
-* @LastEditTime: 2022-09-07 12:09:08
-* @FilePath: 
+ * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
+ * @LastEditTime: 2022-09-18 09:50:53
+ * @FilePath: /venom/test/test_pointBA.cc
 * @Description: test
 */
-#include "basics.hpp"
-#include "optimization.hpp"
+#include "estimator/trajectory.hpp"
+#include "landmark/MapPoint.hpp" 
+//#include "optimization.hpp"
 #include<iostream>
 #include<string>
  
