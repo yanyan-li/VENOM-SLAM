@@ -1,10 +1,10 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-17 15:22:39
- * @LastEditTime: 2022-09-17 17:11:56
+ * @LastEditTime: 2022-09-18 16:21:02
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
- * @Description: 
- * @FilePath: /venom/src/trajectory.hpp
+ * @Description: This class is to generate different types of camera poses. 
+ * @FilePath: /venom/src/estimator/trajectory.hpp
  */
 #ifndef __VENOM_SRC_TRAJECTORY_HPP__
 #define __VENOM_SRC_TRAJECTORY_HPP__ 

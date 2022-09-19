@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-17 16:48:58
- * @LastEditTime: 2022-09-17 17:11:44
+ * @LastEditTime: 2022-09-18 16:20:45
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/src/landmark/MapPoint.hpp
@@ -10,7 +10,7 @@
 #ifndef __VENOM_SRC_LANDMARK_MAPPOINT_HPP__
 #define __VENOM_SRC_LANDMARK_MAPPOINT_HPP__
 
-#include "../trajectory.hpp"
+#include "../estimator/trajectory.hpp"
 
 namespace simulator
 {
@@ -26,6 +26,7 @@ namespace simulator
            // position in the world coordinate
            Eigen::Vector3d pos_world_;
            Eigen::Vector3d pos_world_noise_;
+           Trajectory* trajec_;
            /**
             * @brief The mappoint is detected by the i_Trajectory ^{th} Trajectory,
             *        and associated to the i_pixel ^{th} pixel. 
@@ -39,7 +40,8 @@ namespace simulator
            std::normal_distribution<double> pixel_n_;
       
        public:
-           MapPoint(const int id):num_id_(id),observed(0)
+       
+           MapPoint(const int id, Trajectory* trajec):num_id_(id),observed(0),trajec_(trajec)
            {
                double max_nt = 0.1; double max_nq = 1.*M_PI/180.; double max_pixel_n = 1./240;
                std::random_device rd;
@@ -50,7 +52,8 @@ namespace simulator
  
                generator_ = generator;
                pixel_n_ = pixel_n;
-           };
+           }
+
            void GenerateMapPoint(const double distance, char axis)
            {
               
@@ -97,7 +100,7 @@ namespace simulator
                    if(fov0 > 60) continue;
  
                    // key：camera id,  value：number of detected point
-                   trajec_.setKeyFrameDetects(i);
+                   trajec_->setKeyFrameDetects(i);
                    //std::cout<<"the "<<i<<" th camera. "<<trajec_.contain_feature_cams_[i]<<std::endl;
                    observed++;
                   
