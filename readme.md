@@ -1,13 +1,14 @@
 <!--
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-14 16:37:04
- * @LastEditTime: 2022-09-20 14:53:16
+ * @LastEditTime: 2022-09-20 15:05:41
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/readme.md
 -->
 ## Venom-Simulator  
-Simulator is a super important tool for testing SLAM modules, especially for new proposed ideas, because it's easy to check differences under a controled environment. 
+A simulator is a super important tool for testing SLAM modules, especially for newly proposed ideas, as it is easy to check the validity of your ideas in a controlled environment.
+
 ```
 Architecture:
     src                 ## source files
