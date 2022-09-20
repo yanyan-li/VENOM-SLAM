@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-17 16:49:21
- * @LastEditTime: 2022-09-18 02:26:14
+ * @LastEditTime: 2022-09-20 13:56:51
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/src/landmark/MapLine.hpp
@@ -10,7 +10,9 @@
 #ifndef __VENOM_SRC_LANDMARK_MAPLINE_HPP__
 #define __VENOM_SRC_LANDMARK_MAPLINE_HPP__
 
-#include "../trajectory.hpp"
+
+#include "../estimator/trajectory.hpp"
+
 
 namespace simulator
 {
@@ -29,6 +31,8 @@ namespace simulator
 
            Eigen::Matrix<double,3,2> plucker_world_;
            Eigen::Matrix<double,3,3> plucker_world_noise_;
+
+           Trajectory * traject_; 
            /**
             * @brief The mappoint is detected by the i_Trajectory ^{th} Trajectory,
             *        and associated to the i_pixel ^{th} pixel. 
@@ -42,7 +46,7 @@ namespace simulator
            std::normal_distribution<double> pixel_n_;
       
        public:
-           MapLine(const int id):num_id_(id),observed(0)
+           MapLine(const int id, Trajectory* traject):num_id_(id),observed(0),traject_(traject)
            {
                double max_nt = 0.1; double max_nq = 1.*M_PI/180.; double max_pixel_n = 1./240;
                std::random_device rd;
@@ -91,7 +95,7 @@ namespace simulator
  
                    Eigen::Vector3d ob;
  
-                   // in the camera coordinate
+                   // TODO: in the camera coordinate
                    ob = Rcw * pos_world_ + tcw;
  
                    if(ob(2) < 0) continue; // backside of the camera
@@ -108,7 +112,7 @@ namespace simulator
                    if(fov0 > 60) continue;
  
                    // key：camera id,  value：number of detected point
-                   trajec_.setKeyFrameDetects(i);
+                   traject_->setKeyFrameDetects(i); 
                    //std::cout<<"the "<<i<<" th camera. "<<trajec_.contain_feature_cams_[i]<<std::endl;
                    observed++;
                   
