@@ -1,7 +1,7 @@
 <!--
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-14 16:37:04
- * @LastEditTime: 2022-09-20 15:05:41
+ * @LastEditTime: 2022-09-20 17:07:47
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/readme.md
@@ -49,7 +49,19 @@ Red point are ground truth **landmarks**, while reconstructed **mappoints** gene
 
 Trajectory: Cycle, Sphere and so on.
 
+Commands for testing the simulator
+```
+cd venom
+mkdir build
+cd build
+cmake ..
+make
+cd ../bin
+./test_pointBA
+```
+
 ![environment](images/environment.png)
+
 
 
 ### Acknowledgement

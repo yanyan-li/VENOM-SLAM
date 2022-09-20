@@ -2,13 +2,15 @@
 * @Author: yanyan.li yanyan.li.camp@gmail.com
 * @Date: 2022-08-30 07:38:57
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
- * @LastEditTime: 2022-09-18 09:50:53
+ * @LastEditTime: 2022-09-20 17:03:17
  * @FilePath: /venom/test/test_pointBA.cc
 * @Description: test
 */
-#include "estimator/trajectory.hpp"
-#include "landmark/MapPoint.hpp" 
-//#include "optimization.hpp"
+#include "src/estimator/Trajectory.hpp" 
+#include "src/landmark/MapPoint.hpp" 
+#include "src/optimizer/GlobalBundleAdjustment.hpp"
+#include "src/feature/Reconstruct.hpp"
+#include "src/visulizer/Visualizer.hpp"
 #include<iostream>
 #include<string>
  
@@ -19,9 +21,9 @@ int main(int argv, char** argc)
  
    // keyframe generation
    int frame_num = 100;
-   ParaLi::Trajectory robot_trajectory;
+   simulator::Trajectory* robot_trajectory = new simulator::Trajectory(1,frame_num);
    // generate a circular trajectory with 100 keyframes
-   robot_trajectory.GenerateTrajectory(ParaLi::Trajectory::SPHERE, frame_num); 
+   robot_trajectory->GenerateTrajectory(simulator::Trajectory::SPHERE, frame_num); 
    // robot_trajectory.PrintTrajectory();
  
    // landmarks generation
@@ -33,7 +35,7 @@ int main(int argv, char** argc)
  
    for(int id=0; id<200; id++)
    {
-       ParaLi::MapPoint * ptr_mp = new ParaLi::MapPoint(id);
+       simulator::MapPoint * ptr_mp = new simulator::MapPoint(id, robot_trajectory);
        if(id<50)
            ptr_mp->GenerateMapPoint(distance, 'x');   //left side of the wall
        else if(id<100)
@@ -43,7 +45,7 @@ int main(int argv, char** argc)
        else if(id<200)
            ptr_mp->GenerateMapPoint(-distance, 'y');  // back side
  
-       ptr_mp->AddObservation( robot_trajectory.traject_gt_Twc_, add_noise_to_meas);   
+       ptr_mp->AddObservation( robot_trajectory->traject_gt_Twc_, add_noise_to_meas);   
        //ptr_mp->print();
        points_gt.push_back(ptr_mp->pos_world_);
        // vec_meas_keyframe_mp: mappoint_id<camera_id, mappoint_value>
@@ -52,15 +54,15 @@ int main(int argv, char** argc)
  
    }
  
-   ParaLi::Reconstruct recon;
-   recon.Triangulation(vec_meas_keyframe_mp,robot_trajectory.traject_gt_Twc_);
+   simulator::Reconstruct recon;
+   recon.Triangulation(vec_meas_keyframe_mp,robot_trajectory->traject_gt_Twc_);
   
    std::vector<Eigen::Matrix4d> vec_traject_Twc_opti;
-   ParaLi::pointLocalBundleAdjustment::optimize(recon.tri_point_xyz_, vec_meas_keyframe_mp, robot_trajectory.traject_gt_Twc_, vec_traject_Twc_opti);
+   // simulator::pointLocalBundleAdjustment::optimize(recon.tri_point_xyz_, vec_meas_keyframe_mp, robot_trajectory.traject_gt_Twc_, vec_traject_Twc_opti);
  
    //  visualization
-   ParaLi::Visualizer viewer;
-   viewer.SetParameter(points_gt, robot_trajectory.traject_gt_Twc_,
+   simulator::Visualizer viewer;
+   viewer.SetParameter(points_gt, robot_trajectory->traject_gt_Twc_,
                vec_traject_Twc_opti, vec_meas_keyframe_mp,
                recon.tri_point_inverse_depth_, recon.tri_point_xyz_);
    viewer.show();

@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-17 16:48:58
- * @LastEditTime: 2022-09-18 16:20:45
+ * @LastEditTime: 2022-09-20 16:25:29
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/src/landmark/MapPoint.hpp
@@ -10,7 +10,7 @@
 #ifndef __VENOM_SRC_LANDMARK_MAPPOINT_HPP__
 #define __VENOM_SRC_LANDMARK_MAPPOINT_HPP__
 
-#include "../estimator/trajectory.hpp"
+#include "../estimator/Trajectory.hpp"
 
 namespace simulator
 {

@@ -1,14 +1,18 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-18 02:53:44
- * @LastEditTime: 2022-09-18 02:57:04
+ * @LastEditTime: 2022-09-20 16:32:37
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/src/visulizer/Visualizer.hpp
  */
 
 #ifndef __VENOM_SRC_VISUALIZER_VISUALIZER_HPP__
-#define __VENOM_SRC_VISUALIZER_VISUALIZER_HPP__
+#define __VENOM_SRC_VISUALIZER_VISUALIZER_HPP__ 
+
+#include <vector>
+#include <eigen3/Eigen/Dense>
+#include <pangolin/pangolin.h>
 
 namespace simulator
 {

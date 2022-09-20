@@ -1,10 +1,10 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-17 15:22:39
- * @LastEditTime: 2022-09-18 16:21:02
+ * @LastEditTime: 2022-09-20 16:27:36
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: This class is to generate different types of camera poses. 
- * @FilePath: /venom/src/estimator/trajectory.hpp
+ * @FilePath: /venom/src/estimator/Trajectory.hpp
  */
 #ifndef __VENOM_SRC_TRAJECTORY_HPP__
 #define __VENOM_SRC_TRAJECTORY_HPP__ 
@@ -42,7 +42,7 @@ namespace simulator
             }
             else if(type==1)
             {
-                traject_type_=CYCLE;
+                traject_type_=SPHERE;
                 std::cout<<"\033[0;34m [Venom Similator Printer] The Sphere trajectory with \033[0m"<< num_keyframe <<"\033[0;34m frames is generated.\033[0m"<< std::endl; 
             }
             else

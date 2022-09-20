@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-17 16:49:21
- * @LastEditTime: 2022-09-20 13:56:51
+ * @LastEditTime: 2022-09-20 16:34:24
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/src/landmark/MapLine.hpp
@@ -11,7 +11,7 @@
 #define __VENOM_SRC_LANDMARK_MAPLINE_HPP__
 
 
-#include "../estimator/trajectory.hpp"
+#include "../estimator/Trajectory.hpp""
 
 
 namespace simulator
@@ -117,14 +117,14 @@ namespace simulator
                    observed++;
                   
                    // observation: <key: Trajectory_id, value: 该相机坐标系下的(x_0,y_0,1)>d
-                   obs_gt.emplace_back(i, ob);
-                   if(add_nose && obs_gt.size() > 1)
+                   // obs_gt.emplace_back(i, ob);
+                   // if(add_nose && obs_gt.size() > 1)
                    //            if(add_nose )
-                   {
-                       Eigen::Vector3d noise ( pixel_n_(generator_),pixel_n_(generator_), 0 );
-                       ob += noise;
-                   }
-                   obs.emplace_back(i, ob);
+                //    {
+                //        Eigen::Vector3d noise ( pixel_n_(generator_),pixel_n_(generator_), 0 );
+                //        ob += noise;
+                //    }
+                //    obs.emplace_back(i, ob);
                }
  
            }

@@ -7,10 +7,13 @@ set(CMAKE_CXX_STANDARD 11)
 
 LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
 
+# installed in docker already 
 find_package(Pangolin REQUIRED)
 find_package(OpenCV REQUIRED)
-find_package(Ceres REQUIRED)
 find_package(Eigen3 REQUIRED)
+
+# installed later if you need
+find_package(Ceres REQUIRED)
 find_package(GTSAM)
 
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
@@ -23,24 +26,18 @@ INCLUDE_DIRECTORIES(
         ${OpenCV_INCLUDE_DIRS}
         ${CERES_INCLUDE_DIRS}
         ${PROJECT_SOURCE_DIR}
-        include
 )
-add_subdirectory(Thirdparty)
+add_subdirectory(thirdparty)
 
-file(GLOB SOURCEFILES src/*.cc include/*.hpp)
-
+file(GLOB SOURCEFILES src/*.hpp)
 add_library(PointLinePlaneParamLib SHARED ${SOURCEFILES})
-
 target_link_libraries(PointLinePlaneParamLib
         ${OpenCV_LIBS}
         ${EIGEN3_LIBS}
         ${Pangolin_LIBRARIES}
         ${CERES_LIBRARIES}
-        ${PROJECT_SOURCE_DIR}/Thirdparty/g2o/lib/libg2o.so
         gtsam
         )
-
-
 # Landmark optimization -LBA
-add_executable(test_pointLBA test/test_pointLBA.cc )
-target_link_libraries(test_pointLBA PointLinePlaneParamLib ${CMAKE_THREAD_LIBS_INIT}) 
+add_executable(test_pointBA test/test_pointBA.cc )
+target_link_libraries(test_pointBA PointLinePlaneParamLib ${CMAKE_THREAD_LIBS_INIT}) 
