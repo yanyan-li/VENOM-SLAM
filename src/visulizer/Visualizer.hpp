@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-18 02:53:44
- * @LastEditTime: 2022-09-20 16:32:37
+ * @LastEditTime: 2022-09-22 18:26:28
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/src/visulizer/Visualizer.hpp
@@ -22,6 +22,8 @@ namespace simulator
        public:
            // all mappoints and camera pose
            std::vector<Eigen::Vector3d> points_true_;
+           std::vector<Eigen::Matrix<double,3,2>> lines_true_;
+
            std::vector<Eigen::Matrix4d> Twcs_true_; 
            std::vector<Eigen::Matrix4d> Twcs_;
            std::vector<std::vector<std::pair< int,Eigen::Vector3d>>> point_obs_;
@@ -33,6 +35,20 @@ namespace simulator
                                std::vector<double> &tri_point_inverse_depth, std::vector<Eigen::Vector3d> &tri_point_xyz)
            {
                points_true_ = mappoints; // ground truth point
+               tri_point_xyz_ = tri_point_xyz; // optimized 3D point
+               point_obs_ = point_obs;   //  normalized noisy measurement
+               tri_point_inverse_depth_ = tri_point_inverse_depth; // inverse depth
+ 
+               Twcs_true_ = Twcs_gt; // ground truth pose
+               Twcs_ = Twcs;         // optimized Twcs
+           }
+
+           void SetEnvParameter(std::vector<Eigen::Vector3d> &mappoints, std::vector<Eigen::Matrix<double,3,2>> &maplines, std::vector<Eigen::Matrix4d> &Twcs_gt,
+                               std::vector<Eigen::Matrix4d> &Twcs, std::vector<std::vector<std::pair< int,Eigen::Vector3d>>> &point_obs,
+                               std::vector<double> &tri_point_inverse_depth, std::vector<Eigen::Vector3d> &tri_point_xyz)
+           {
+               points_true_ = mappoints; // ground truth point
+               lines_true_ = maplines;
                tri_point_xyz_ = tri_point_xyz; // optimized 3D point
                point_obs_ = point_obs;   //  normalized noisy measurement
                tri_point_inverse_depth_ = tri_point_inverse_depth; // inverse depth
@@ -65,7 +81,7 @@ namespace simulator
                pangolin::Var<bool> menuShowPoint("menu.Groudtruth Point",false,true);
                pangolin::Var<bool> menuShowPointRecon("menu.Reconstructed Point",false,true);
                pangolin::Var<bool> meanShowPointOpti("menu.Optimize Point",false,true);
-               // pangolin::Var<bool> menuShowLines("menu.GT Lines",true,true);
+               pangolin::Var<bool> menuShowLine("menu.Groudtruth Line",false,true);
                // pangolin::Var<bool> menuShowOptiLines("menu.Show Opti Lines",true,true);
  
                // Define Trajectory Render Object (for view / scene browsing)
@@ -195,8 +211,8 @@ namespace simulator
            //            DrawAllTrajectory(Ms_point);
            //        }
            //
-                   // if(menuShowLines)
-                   //     DrawTrueLine();
+                   if(menuShowLine)
+                       DrawTrueLine();
            //
            //        if(menuShowOptiLines)
            //            DrawOptiiLines();
@@ -349,17 +365,17 @@ namespace simulator
  
            void DrawTrueLine()
            {
-               // glLineWidth(2.0);
-               // glBegin(GL_LINES);
-               // glColor3f(1.0f,0.0f,0.0f);
-               // for(const auto & Line:lines_true_)
-               // {
-               //     Eigen::Vector3d line0 = Line.block(0,0,3,1);
-               //     Eigen::Vector3d line1 = Line.block(0,1,3,1);
-               //     glVertex3f(line0(0),line0(1),line0(2));
-               //     glVertex3f(line1(0),line1(1),line1(2));
-               // }
-               // glEnd();
+               glLineWidth(2.0);
+               glBegin(GL_LINES);
+               glColor3f(1.0f,0.0f,0.0f);
+               for(const auto & Line:lines_true_)
+               {
+                   Eigen::Vector3d line0 = Line.block(0,0,3,1);
+                   Eigen::Vector3d line1 = Line.block(0,1,3,1);
+                   glVertex3f(line0(0),line0(1),line0(2));
+                   glVertex3f(line1(0),line1(1),line1(2));
+               }
+               glEnd();
            }
  
    };

@@ -38,7 +38,7 @@ Clone the repo, and it is easy to build your own image and container based on th
 The proposed [docker environment](Docker/readme.md) contains the following  libs.
 #### Installed environment
 Pangolin, OpenCV, Eigen and minor libs have been installed in already.  
-  
+
 #### Choices for optimization.
 *Popular optimization libraries including ceres, gtsam and g2o can be selected here based on your particular preferences.* 
 Optimization libraries are not installed in advance, but suggestions for installing can be found  [here](thirdparty/readme.md).
@@ -49,7 +49,25 @@ Red point are ground truth **landmarks**, while reconstructed **mappoints** gene
 
 Trajectory: Cycle, Sphere and so on.
 
+##### 2.1 Show Env
+
+```
+cd venom
+mkdir build
+cd build 
+cmake ..
+make
+../bin/show_estimator_env 
+```
+
+
+
+![env](images/env.png)
+
+##### 2.2 Optimization map points 
+
 Commands for testing the simulator
+
 ```
 cd venom
 mkdir build

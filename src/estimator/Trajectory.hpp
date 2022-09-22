@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-17 15:22:39
- * @LastEditTime: 2022-09-20 16:27:36
+ * @LastEditTime: 2022-09-22 16:23:57
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: This class is to generate different types of camera poses. 
  * @FilePath: /venom/src/estimator/Trajectory.hpp
@@ -57,12 +57,12 @@ namespace simulator
             if (traject_type == CYCLE)
             {
                 int wave_num = 10;
-                double wave_high = 0.75;
+                double wave_high = 1.5;
                 GenerateCycleKeyFrames(num_keyframe, wave_num, wave_high);
             }
             else if (traject_type == SPHERE)
             {
-                double r = 2.0;
+                double r = 3.0;
 
                 GenerateSphereKeyFrames(num_keyframe, r);
             }

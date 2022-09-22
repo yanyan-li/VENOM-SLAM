@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-17 16:49:21
- * @LastEditTime: 2022-09-20 16:34:24
+ * @LastEditTime: 2022-09-22 18:36:05
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/src/landmark/MapLine.hpp
@@ -11,7 +11,7 @@
 #define __VENOM_SRC_LANDMARK_MAPLINE_HPP__
 
 
-#include "../estimator/Trajectory.hpp""
+#include "../estimator/Trajectory.hpp"
 
 
 namespace simulator
@@ -25,12 +25,12 @@ namespace simulator
            int num_id_;
            // how many Trajectorys detect this point
            int observed;
-           // position in the world coordinate
+           // endpoints parametrization in the world coordinate
            Eigen::Matrix<double,3,2> pos_world_;
            Eigen::Matrix<double,3,2> pos_world_noise_; 
-
+           // plucker parametrization in the world coordinate
            Eigen::Matrix<double,3,2> plucker_world_;
-           Eigen::Matrix<double,3,3> plucker_world_noise_;
+           Eigen::Matrix<double,3,2> plucker_world_noise_;
 
            Trajectory * traject_; 
            /**
@@ -71,7 +71,7 @@ namespace simulator
                }
                else if(axis == 'y')
                {
-                pos_world_(0,0) = point_generate(generator_); pos_world_(0,1) = pos_world_(1,0);
+                pos_world_(0,0) = point_generate(generator_); pos_world_(0,1) = pos_world_(0,0);
                 pos_world_(1,0) = distance; pos_world_(1,1) = distance; 
                 pos_world_(2,0) = 2.; pos_world_(2,1) = -2.;
                }
@@ -91,40 +91,58 @@ namespace simulator
                    auto Twc = keyframes_Twcs[i];
                    Eigen::Matrix4d Tcw = Twc.inverse();
                    Eigen::Matrix3d Rcw = Tcw.block(0,0,3,3);
-                   Eigen::Vector3d tcw = Tcw.block(0,3,3,1);
+                   //Eigen::Vector3d tcw = Tcw.block(0,3,3,1);
+                   Eigen::Matrix<double,3,2> tcw;
+                   tcw.block(0,0,3,1) = Tcw.block(0,3,3,1);
+                   tcw.block(0,1,3,1) = Tcw.block(0,3,3,1);
+
+                   Eigen::Matrix<double, 3,2> ob;
  
-                   Eigen::Vector3d ob;
- 
-                   // TODO: in the camera coordinate
+                   // in the camera coordinate
                    ob = Rcw * pos_world_ + tcw;
  
-                   if(ob(2) < 0) continue; // backside of the camera
-                   ob = ob / ob(2); // ob: [x, y, 1]
-          
+                   // 
+                   if(ob(2,0) < 0) continue; // backside of the camera
+                   if(ob(2,1) < 0) continue; //
+
+                   ob.block(0,0,3,1) = ob.block(0,0,3,1) / ob(2,0); // 
+                   ob.block(0,1,3,1) = ob.block(0,1,3,1) / ob(2,1); //      
+
                    // normalized image center 
                    Eigen::Vector3d center(0,0,1);
-
-                   Eigen::Vector3d ob_cam = ob;
+                   
+                   //
+                   Eigen::Matrix<double,3,2> ob_cam = ob;
                    ob_cam.normalize();
+                   std::cout<<"\033[0;34m ob_cam: \033[0m"<<ob_cam<<std::endl;
                    
                    // angle between 光线 和 图像中心 之间的夹角。这个夹角太大，我们就认为观测不到了
-                   double fov0 = std::acos(center.dot(ob_cam)); fov0 = fov0 / M_PI * 180.;
+                   double fov0 = 0; //std::acos(center.dot((ob_cam.block(0,0,3,1)))); 
+                   fov0 = fov0 / M_PI * 180.;
                    if(fov0 > 60) continue;
- 
+                   fov0 = 0; //std::acos(center.dot((ob_cam.block(0,1,3,1)))); 
+                   fov0 = fov0 / M_PI * 180.;
+                   if(fov0 > 60) continue;
+
                    // key：camera id,  value：number of detected point
                    traject_->setKeyFrameDetects(i); 
                    //std::cout<<"the "<<i<<" th camera. "<<trajec_.contain_feature_cams_[i]<<std::endl;
                    observed++;
                   
                    // observation: <key: Trajectory_id, value: 该相机坐标系下的(x_0,y_0,1)>d
-                   // obs_gt.emplace_back(i, ob);
-                   // if(add_nose && obs_gt.size() > 1)
-                   //            if(add_nose )
-                //    {
-                //        Eigen::Vector3d noise ( pixel_n_(generator_),pixel_n_(generator_), 0 );
-                //        ob += noise;
-                //    }
-                //    obs.emplace_back(i, ob);
+                   
+                   vec_obs_gt_.emplace_back(i,ob); 
+                   if(add_nose && vec_obs_gt_.size() > 1)
+                       if (add_nose)
+                       {
+                           Eigen::Matrix<double,3,2> noise;
+                           noise<< pixel_n_(generator_), pixel_n_(generator_),
+                                   pixel_n_(generator_), pixel_n_(generator_),
+                                   0, 0;
+                           std::cout<<"noise:"<<noise<<std::endl;       
+                           ob += noise;
+                       }
+                   vec_obs_.emplace_back(i,ob); //obs.emplace_back(i, ob);
                }
  
            }
