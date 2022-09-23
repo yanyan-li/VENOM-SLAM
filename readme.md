@@ -1,7 +1,7 @@
 <!--
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-14 16:37:04
- * @LastEditTime: 2022-09-20 17:07:47
+ * @LastEditTime: 2022-09-23 16:29:55
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/readme.md
@@ -23,8 +23,10 @@ Architecture:
             |-->factor  ## responsible for building different factors 
             |-->GlobalBundleAdjustment.hpp
         |-->visulizer   ## responsible for visualozation based on Pangolin
+            |-->Visulizer.hpp
     test                ## entrance for testing
-        |-->test_pointBA.cc    
+        |-->test_pointBA.cc
+        |-->test_show_env.cc
     thirdparty          ## optimization libraries
         |-->gtsam
         |-->ceres

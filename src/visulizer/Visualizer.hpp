@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-18 02:53:44
- * @LastEditTime: 2022-09-22 18:26:28
+ * @LastEditTime: 2022-09-23 16:33:02
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/src/visulizer/Visualizer.hpp
@@ -59,7 +59,7 @@ namespace simulator
  
            void show()
            {
-               pangolin::CreateWindowAndBind("Meta-Bounds SLAM (backend) Simulator",1024,768);
+               pangolin::CreateWindowAndBind(" VENOM (1.0.0) SLAM (backend) Simulator",1024,768);
                // 3D Mouse handler requires depth testing to be enabled
                // 启动深度测试，OpenGL只绘制最前面的一层，绘制时检查当前像素前面是否有别的像素，如果别的像素挡住了它，那它就不会绘制
                glEnable(GL_DEPTH_TEST);

@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-17 16:49:21
- * @LastEditTime: 2022-09-22 18:36:05
+ * @LastEditTime: 2022-09-23 16:41:21
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/src/landmark/MapLine.hpp
@@ -74,6 +74,14 @@ namespace simulator
                 pos_world_(0,0) = point_generate(generator_); pos_world_(0,1) = pos_world_(0,0);
                 pos_world_(1,0) = distance; pos_world_(1,1) = distance; 
                 pos_world_(2,0) = 2.; pos_world_(2,1) = -2.;
+               }
+               else if(axis == 'z')
+               {
+                // TODO:
+                pos_world_(0,0) = point_generate(generator_); pos_world_(0,1) = pos_world_(0,0);
+                pos_world_(1,0) = distance; pos_world_(1,1) = distance; 
+                pos_world_(2,0) = 2.; pos_world_(2,1) = -2.;
+
                }
            }
           
