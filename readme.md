@@ -18,7 +18,7 @@
   <img src="https://img.shields.io/badge/Version-0.01-green.svg">
 </p>
 
-##   
+## 
 A simulator is a super important tool for testing SLAM modules, especially for newly proposed ideas, as it is easy to check the validity of your ideas in a controlled environment.
 
 ```
@@ -98,6 +98,38 @@ cd ../bin
 ```
 
 ![environment](images/environment.png)
+
+
+
+### Related Publications:
+
+If you use Venom in an academic work, please cite:
+
+```
+inproceedings{Li2021PlanarSLAM,
+  author = {Li, Yanyan and Yunus, Raza and Brasch, Nikolas and Navab, Nassir and Tombari, Federico},
+  title = {RGB-D SLAM with Structural Regularities},
+  year = {2021},
+  booktitle = {2021 IEEE international conference on Robotics and automation (ICRA)},
+ }
+```
+```
+inproceedings{Li2020SSLAM,
+  author = {Li, Yanyan and Brasch, Nikolas and Wang, Yida and Navab, Nassir and Tombari, Federico},
+  title = {Structure-SLAM: Low-Drift Monocular SLAM in Indoor Environments},
+  year = {2020},
+  booktitle = {IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)},
+ }
+```
+
+```
+@article{li2022graph,
+  title={E-Graph: Minimal Solution for Rigid Rotation with Extensibility Graphs},
+  author={Li, Yanyan and Tombari, Federico},
+  journal={arXiv preprint arXiv:2207.10008 (ECCV2022)},
+  year={2022}
+}
+```
 
 
 
