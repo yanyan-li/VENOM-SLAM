@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-17 16:49:21
- * @LastEditTime: 2022-09-23 16:41:21
+ * @LastEditTime: 2022-09-24 17:29:56
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/src/landmark/MapLine.hpp
@@ -59,30 +59,37 @@ namespace simulator
                pixel_n_ = pixel_n;
            };
 
-           void GenerateMapLine(const double distance, char axis)
+           void GenerateMapLine(const double distance, std::string axis)
            {
                std::uniform_real_distribution<double> point_generate( -4., 4. ); // width distribution
-               if(axis == 'x')
+               if(axis == "vertical-left")
                {
                 pos_world_(0,0) = distance; pos_world_(0,1) = distance; 
                 pos_world_(1,0) = point_generate(generator_); pos_world_(1,1) = pos_world_(1,0);
-                pos_world_(2,0) = 2.; pos_world_(2,1) = -2.;
+                pos_world_(2,0) = 2.; pos_world_(2,1) = -3.;
 
                }
-               else if(axis == 'y')
+               else if(axis == "vertical-right")
                {
                 pos_world_(0,0) = point_generate(generator_); pos_world_(0,1) = pos_world_(0,0);
                 pos_world_(1,0) = distance; pos_world_(1,1) = distance; 
-                pos_world_(2,0) = 2.; pos_world_(2,1) = -2.;
+                pos_world_(2,0) = 2.; pos_world_(2,1) = -3.;
                }
-               else if(axis == 'z')
+               else if(axis == "horizontal-left")
                {
-                // TODO:
+                // x ,y, z
                 pos_world_(0,0) = point_generate(generator_); pos_world_(0,1) = pos_world_(0,0);
-                pos_world_(1,0) = distance; pos_world_(1,1) = distance; 
-                pos_world_(2,0) = 2.; pos_world_(2,1) = -2.;
-
+                pos_world_(1,0) = -4.; pos_world_(1,1) = 4.; 
+                pos_world_(2,0) = -3.2; pos_world_(2,1) = -3.2;
                }
+               else if(axis == "horizontal-right")
+               {
+                // x ,y, z
+                pos_world_(0,0) = -4.; pos_world_(0,1) = 4.; 
+                pos_world_(1,0) = point_generate(generator_); pos_world_(1,1) = pos_world_(1,0);
+                pos_world_(2,0) = -3.2; pos_world_(2,1) = -3.2;
+               }
+
            }
           
            /**
@@ -122,7 +129,7 @@ namespace simulator
                    //
                    Eigen::Matrix<double,3,2> ob_cam = ob;
                    ob_cam.normalize();
-                   std::cout<<"\033[0;34m ob_cam: \033[0m"<<ob_cam<<std::endl;
+                   // std::cout<<"\033[0;34m ob_cam: \033[0m"<<ob_cam<<std::endl;
                    
                    // angle between 光线 和 图像中心 之间的夹角。这个夹角太大，我们就认为观测不到了
                    double fov0 = 0; //std::acos(center.dot((ob_cam.block(0,0,3,1)))); 
@@ -147,7 +154,7 @@ namespace simulator
                            noise<< pixel_n_(generator_), pixel_n_(generator_),
                                    pixel_n_(generator_), pixel_n_(generator_),
                                    0, 0;
-                           std::cout<<"noise:"<<noise<<std::endl;       
+                           //std::cout<<"noise:"<<noise<<std::endl;       
                            ob += noise;
                        }
                    vec_obs_.emplace_back(i,ob); //obs.emplace_back(i, ob);

@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-18 02:53:44
- * @LastEditTime: 2022-09-23 16:33:02
+ * @LastEditTime: 2022-09-24 16:35:26
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/src/visulizer/Visualizer.hpp
@@ -78,10 +78,10 @@ namespace simulator
            //    pangolin::Var<bool> menuShowTrajectory("menu.Show Trajectory",true,true);
            //    pangolin::Var<bool> menuShowTrajectory("menu.Show Trajectory",true,true);
            //    pangolin::Var<bool> menuShowTrajectory("menu.Show Trajectory",true,true);
-               pangolin::Var<bool> menuShowPoint("menu.Groudtruth Point",false,true);
+               pangolin::Var<bool> menuShowPoint("menu.Groudtruth Point",true,true);
                pangolin::Var<bool> menuShowPointRecon("menu.Reconstructed Point",false,true);
                pangolin::Var<bool> meanShowPointOpti("menu.Optimize Point",false,true);
-               pangolin::Var<bool> menuShowLine("menu.Groudtruth Line",false,true);
+               pangolin::Var<bool> menuShowLine("menu.Groudtruth Line",true,true);
                // pangolin::Var<bool> menuShowOptiLines("menu.Show Opti Lines",true,true);
  
                // Define Trajectory Render Object (for view / scene browsing)
@@ -91,7 +91,7 @@ namespace simulator
                //                观测的方位向量：(0.0,-1.0, 0.0)
                pangolin::OpenGlRenderState s_cam(
                        pangolin::ProjectionMatrix(1024,768,500,500,512,389,0.1,1000),
-                       pangolin::ModelViewLookAt(0,-0.7,-1.8, 0,0,0,0.0,-1.0, 0.0)
+                       pangolin::ModelViewLookAt(0,-0.7,10.8, 0,0, -50.0 ,0.0,10.0, 10.0)
                );
  
                // Add named OpenGL viewport to window and provide 3D Handler

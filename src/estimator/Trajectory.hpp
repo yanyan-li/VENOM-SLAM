@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-17 15:22:39
- * @LastEditTime: 2022-09-22 16:23:57
+ * @LastEditTime: 2022-09-24 17:22:57
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: This class is to generate different types of camera poses. 
  * @FilePath: /venom/src/estimator/Trajectory.hpp
@@ -56,9 +56,10 @@ namespace simulator
                 return false;
             if (traject_type == CYCLE)
             {
+                double r = 3.0;
                 int wave_num = 10;
                 double wave_high = 1.5;
-                GenerateCycleKeyFrames(num_keyframe, wave_num, wave_high);
+                GenerateCycleKeyFrames(num_keyframe, wave_num, wave_high, r);
             }
             else if (traject_type == SPHERE)
             {
@@ -88,7 +89,7 @@ namespace simulator
             else if (theta >= M_PI * 3. / 2. && theta < M_PI * 2)
                 theta_ = theta - 3. * M_PI / 2.;
             Eigen::Matrix3d Rwb;
-            Rwb = Eigen::AngleAxisd(theta_, Eigen::Vector3d::UnitZ()) * Eigen::AngleAxisd(M_PI / 2., Eigen::Vector3d::UnitX());
+            Rwb = Eigen::AngleAxisd(theta_, Eigen::Vector3d::UnitZ()) * Eigen::AngleAxisd(-M_PI/2.-M_PI/6., Eigen::Vector3d::UnitX());
             Eigen::Vector3d twb = Eigen::Vector3d(radius * cos(theta), radius * sin(theta), wave_high * std::cos(wave_theta));
 
             Twc.block(0, 0, 3, 3) = Rwb;
@@ -123,8 +124,8 @@ namespace simulator
 
             for (int n = 0; n < frame_num; n++) // camera id from n=0 to n=frameNum-1
             {
-                int radius = 1;
-                double wave_high = 0.75;
+                int radius = radius_cycle;
+                //double wave_high = 0.75;
                 double theta = n * 2. * M_PI / frame_num;
                 double step = n * 1. / frame_num;
                 double wave_theta = n * 2. * M_PI / (frame_num / wave_num);

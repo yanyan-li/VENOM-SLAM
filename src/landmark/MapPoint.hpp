@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-17 16:48:58
- * @LastEditTime: 2022-09-20 16:25:29
+ * @LastEditTime: 2022-09-24 17:30:36
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/src/landmark/MapPoint.hpp
@@ -54,13 +54,13 @@ namespace simulator
                pixel_n_ = pixel_n;
            }
 
-           void GenerateMapPoint(const double distance, char axis)
+           void GenerateMapPoint(const double distance, std::string axis)
            {
               
-               std::uniform_real_distribution<double> point_generate( -4., 4. ); // width distribution
-               if(axis == 'x')
+               std::uniform_real_distribution<double> point_generate( -3., 2. ); // width distribution
+               if(axis == "vertical-left")
                    pos_world_ <<  distance, point_generate(generator_), point_generate(generator_);
-               else if(axis == 'y')
+               else if(axis == "vertical-right")
                    pos_world_ <<  point_generate(generator_), distance,  point_generate(generator_);
  
                // after generating the mappoint

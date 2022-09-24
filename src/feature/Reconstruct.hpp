@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-18 03:29:37
- * @LastEditTime: 2022-09-20 16:47:16
+ * @LastEditTime: 2022-09-24 17:13:42
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/src/feature/Reconstruct.hpp
@@ -37,7 +37,7 @@ namespace simulator
                        // P = T_cs_c0 : from c0 to cs
                        Eigen::Matrix4d P = Twcs[ob[i].first].inverse()*Twc0;
                        Eigen::Vector3d f = ob0; //.normalized();
-                       std::cout<<" f "<< f<< ", "<< ob0<<std::endl;
+                       // std::cout<<" f "<< f<< ", "<< ob0<<std::endl;
                        A.row(index++) = f[0] * P.row(2) - f[2] * P.row(0);
                        A.row(index++) = f[1] * P.row(2) - f[2] * P.row(1);
  
