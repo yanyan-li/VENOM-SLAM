@@ -1,7 +1,7 @@
 <!--
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-14 16:37:04
- * @LastEditTime: 2022-09-20 17:07:47
+ * @LastEditTime: 2022-09-24 17:56:09
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/readme.md
@@ -25,7 +25,7 @@ Architecture:
         |-->visulizer   ## responsible for visualozation based on Pangolin
     test                ## entrance for testing
         |-->test_pointBA.cc
-        |-->test_
+        |-->test_show_env.cc
     thirdparty          ## optimization libraries
         |-->gtsam
         |-->ceres
