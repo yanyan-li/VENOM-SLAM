@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-17 16:48:58
- * @LastEditTime: 2022-09-24 17:30:36
+ * @LastEditTime: 2022-09-25 15:33:10
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/src/landmark/MapPoint.hpp
@@ -51,7 +51,11 @@ namespace simulator
                std::normal_distribution<double> pixel_n(0, max_pixel_n);
  
                generator_ = generator;
-               pixel_n_ = pixel_n;
+               pixel_n_ = pixel_n; 
+
+               // initialize 
+               obs.reserve(trajec_->traject_gt_Twc_.size());
+               obs_gt.reserve(trajec_->traject_gt_Twc_.size());
            }
 
            void GenerateMapPoint(const double distance, std::string axis)
@@ -64,7 +68,13 @@ namespace simulator
                    pos_world_ <<  point_generate(generator_), distance,  point_generate(generator_);
  
                // after generating the mappoint
-               // add observatin
+               // add observatin  
+               bool add_noise = true;
+               //std::cout<<"keuframe size: "<<trajec_->traject_gt_Twc_.size()<<std::endl;
+               // AddObservation(trajec_->traject_gt_Twc_, add_noise );
+               //std::cout<<"add observation7"<<std::endl; 
+
+
            }
           
            /**
@@ -73,12 +83,11 @@ namespace simulator
             * @param keyframes_Twcs
             * @param add_noise : to generate noisy mappoint
             */
- 
-           void AddObservation(std::vector<Eigen::Matrix4d> keyframes_Twcs, bool add_nose)
+           void AddObservation(std::vector<Eigen::Matrix4d> keyframes_Twcs, bool add_noise)
            {
-               //
                for(int i = 0; i< keyframes_Twcs.size(); ++i)
                {
+                   //std::cout<<i<<", "<< keyframes_Twcs.size()<<std::endl;
                    auto Twc = keyframes_Twcs[i];
                    Eigen::Matrix4d Tcw = Twc.inverse();
                    Eigen::Matrix3d Rcw = Tcw.block(0,0,3,3);
@@ -98,16 +107,20 @@ namespace simulator
                    ob_cam.normalize();
                    double fov0 = std::acos(center.dot(ob_cam)); fov0 = fov0 / M_PI * 180.;
                    if(fov0 > 60) continue;
- 
-                   // key：camera id,  value：number of detected point
-                   trajec_->setKeyFrameDetects(i);
-                   //std::cout<<"the "<<i<<" th camera. "<<trajec_.contain_feature_cams_[i]<<std::endl;
+                   
+                   //std::cout<<"sss"<<std::endl;
+                   // i：camera id,  value：number of detected point
+                   // this->num_id_: mappoint id
+                   // ob_cam: measurement in this camera coordinate 
+                   trajec_->SetKeyFrameDetects(i, this->num_id_, ob_cam);
+                   //std::cout<<"the "<<i<<" th camera. "<<trajec_.contain_mp_cams_[i]<<std::endl;
                    observed++;
                   
                    // observation: <key: Trajectory_id, value: 该相机坐标系下的(x_0,y_0,1)>d
+                   //std::cout<<" s"<<std::endl;
                    obs_gt.emplace_back(i, ob);
-                   if(add_nose && obs_gt.size() > 1)
-                   //            if(add_nose )
+                   if(add_noise && obs_gt.size() > 1)
+                   //            if(add_noise )
                    {
                        Eigen::Vector3d noise ( pixel_n_(generator_),pixel_n_(generator_), 0 );
                        ob += noise;

@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-17 15:22:39
- * @LastEditTime: 2022-09-24 17:22:57
+ * @LastEditTime: 2022-09-25 15:31:18
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: This class is to generate different types of camera poses. 
  * @FilePath: /venom/src/estimator/Trajectory.hpp
@@ -34,20 +34,24 @@ namespace simulator
         };
 
         Trajectory(const int type,  const int num_keyframe )
-        {
+        {   
+            obs= std::vector< std::vector<std::pair<int /* */, Eigen::Vector3d>>>(num_keyframe, std::vector<std::pair<int /* */, Eigen::Vector3d>>());//.reserve(num_keyframe);
+            //traject_gt_Twc_ = std::vector<Eigen::Matrix4d>(2*num_keyframe, Eigen::Matrix4d::Zero()) ;
+            
+            
             if(type==0)
             {
                 traject_type_=CYCLE;
-                std::cout<<"\033[0;34m [Venom Similator Printer] The Cycle trajectory with \033[0m"<< num_keyframe <<"\033[0;34m frames is generated.\033[0m"<< std::endl; 
+                std::cout<<"\033[0;35m [Venom Similator Printer] The Cycle trajectory with \033[0m"<< num_keyframe <<"\033[0;35m frames is generated.\033[0m"<< std::endl; 
             }
             else if(type==1)
             {
                 traject_type_=SPHERE;
-                std::cout<<"\033[0;34m [Venom Similator Printer] The Sphere trajectory with \033[0m"<< num_keyframe <<"\033[0;34m frames is generated.\033[0m"<< std::endl; 
+                std::cout<<"\033[0;35m [Venom Similator Printer] The Sphere trajectory with \033[0m"<< num_keyframe <<"\033[0;35m frames is generated.\033[0m"<< std::endl; 
             }
             else
                 return; 
-            GenerateTrajectory(traject_type_, num_keyframe);    
+            //GenerateTrajectory(traject_type_, num_keyframe);    
         };
 
         bool GenerateTrajectory(const TrajectoryType &traject_type, const int &num_keyframe)
@@ -72,6 +76,8 @@ namespace simulator
                 std::cout << "We only have the CYCLE type trajectory currently." << std::endl;
                 return false;
             }
+
+            std::cout<<"num "<<num_keyframe<<","<<traject_gt_Twc_.size()<<std::endl;
 
             return true;
         } 
@@ -155,9 +161,43 @@ namespace simulator
             }
         }
 
-        void setKeyFrameDetects(int id)
+        /**
+         * @brief Set the Key Frame Detects object
+         * 
+         * @param frame_id 
+         * @param mappoint_id 
+         * @param measument 
+         */
+        void SetKeyFrameDetects(int frame_id, int mappoint_id, Eigen::Vector3d measument)
+        {   
+            // the id th cam detects n features  
+            contain_mp_cams_[frame_id]++;
+            //std::cout<<"frame_id: "<<frame_id <<", "<<contain_mp_cams_[frame_id]<<std::endl;
+
+            // add observation
+            AddObservation(frame_id, mappoint_id, measument);
+
+        }
+
+
+        /**
+         * @brief Set the Key Frame Detects object
+         * 
+         * @param frame_id 
+         */
+        void SetKeyFrameDetects(int frame_id)
+        {   
+            // the id th cam detects n features  
+            contain_ml_cams_[frame_id]++;
+        }
+
+        // 
+        void AddObservation(int frame_id, int mappoint_id, Eigen::Vector3d measurement)
         {
-            contain_feature_cams_[id]++;
+            //std::cout<<"frame if"<< frame_id <<", "<<obs.size()<<", "<< mappoint_id<<", "<<measurement<<std::endl;
+
+            obs[frame_id].push_back(std::make_pair( mappoint_id, measurement)); ///std::pair<mappoint_id, measurement>);
+            //std::cout<<"frame if:"<<obs.size()<<std::endl;
         }
 
     public:
@@ -167,10 +207,22 @@ namespace simulator
         // Eigen::Matrix3d Rwb_;
         // Eigen::Vector3d twb_;
         std::vector<Eigen::Matrix4d> traject_gt_Twc_;
-        std::vector<std::pair<int, Eigen::Vector3d>> obs;
-        std::vector<std::pair<int, Eigen::Vector3d>> obs_gt;
+
+        // the i th cam, detects the id th mappoint, with the 3D coordinate
+        std::vector< std::vector<std::pair<int /* */, Eigen::Vector3d>>> obs;
+
+        std::vector< std::vector<std::pair<int, Eigen::Vector3d>>> obs_gt; 
+
+         // the i th cam, detects the id th mappoint, with the 3D coordinate
+        std::vector< std::vector<std::pair<int /* */, Eigen::Matrix<double,3,2>>>> obs_line_;
+        std::vector< std::vector<std::pair<int, Eigen::Matrix<double,3,2>>>> obs_line_gt_;
+        
+        // std::vector<std::pair<int /* */, int> >  
+
         TrajectoryType traject_type_;
-        std::map<int, int> contain_feature_cams_;
+        // mappoint and mapline
+        std::map<int, int> contain_mp_cams_;
+        std::map<int, int> contain_ml_cams_;
 
     protected:
         Eigen::Vector3d pos_normalized_Trajectory;

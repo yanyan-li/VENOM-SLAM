@@ -1,7 +1,7 @@
 /*
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-22 16:10:56
- * @LastEditTime: 2022-09-22 18:28:56
+ * @LastEditTime: 2022-09-25 15:34:15
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/test/test_show_env.cc
@@ -25,10 +25,12 @@ int main(int argc, char **argv)
    
    // keyframe generation
    int frame_num = 100;
-   simulator::Trajectory* robot_trajectory = new simulator::Trajectory(1, frame_num);
+   simulator::Trajectory* robot_trajectory = new simulator::Trajectory(0, frame_num);
    // generate a circular trajectory with 100 keyframes
-   robot_trajectory->GenerateTrajectory(simulator::Trajectory::SPHERE, frame_num); 
-   // robot_trajectory.PrintTrajectory();
+   robot_trajectory->GenerateTrajectory(simulator::Trajectory::CYCLE, frame_num); 
+   //robot_trajectory->PrintTrajectory();
+
+   std::cout<<robot_trajectory->traject_gt_Twc_.size()<< " keyframes"<<std::endl;
  
    // landmarks generation
    double distance = 5.0; // distance between wall and the trajectory center
@@ -46,45 +48,66 @@ int main(int argc, char **argv)
 
    
 
- 
    for(int id=0; id<200; id++)
    {
        simulator::MapPoint * ptr_mp = new simulator::MapPoint(id, robot_trajectory);
-       if(id<50)
-           ptr_mp->GenerateMapPoint(distance, 'x');   //left side of the wall
+       if(id<50)  // vertical-left
+           ptr_mp->GenerateMapPoint(distance, "vertical-left");   //left side of the wall
        else if(id<100)
-           ptr_mp->GenerateMapPoint(-distance, 'x');  //right side
+           ptr_mp->GenerateMapPoint(-distance, "vertical-left");  //right side
        else if(id<150)
-           ptr_mp->GenerateMapPoint(distance, 'y');   // front side
+           ptr_mp->GenerateMapPoint(distance, "vertical-right");   // front side
        else if(id<200)
-           ptr_mp->GenerateMapPoint(-distance, 'y');  // back side
+           ptr_mp->GenerateMapPoint(-distance, "vertical-right");  // back side
  
        ptr_mp->AddObservation( robot_trajectory->traject_gt_Twc_, add_noise_to_meas);   
-       //ptr_mp->print();
+       
+
+       // ptr_mp->print();
        points_gt.push_back(ptr_mp->pos_world_);
        // vec_meas_keyframe_mp: mappoint_id<camera_id, mappoint_value>
        vec_meas_keyframe_mp.push_back(ptr_mp->obs);
        vec_gt_keyframe_mp.push_back(ptr_mp->obs_gt);
    }
+       std::cout<<"generate"<<std::endl;
 
-   for(int id=0; id<40; id++)
+
+
+   for(int id=0; id<60; id++)
    {
     simulator::MapLine * ptr_ml = new simulator::MapLine(id, robot_trajectory);
     if(id<10) 
-        ptr_ml->GenerateMapLine(distance,'x');
+        ptr_ml->GenerateMapLine(distance,"vertical-left");
     else if(id<20)
-        ptr_ml->GenerateMapLine(-distance, 'x');
+        ptr_ml->GenerateMapLine(-distance, "vertical-left");
     else if(id<30)
-        ptr_ml->GenerateMapLine(distance, 'y');
+        ptr_ml->GenerateMapLine(distance, "vertical-right");
     else if(id<40)
-        ptr_ml->GenerateMapLine(-distance, 'y'); 
+        ptr_ml->GenerateMapLine(-distance, "vertical-right"); 
+    else if(id<45)
+        ptr_ml->GenerateMapLine(distance, "horizontal-left"); 
+    else if(id<50)
+        ptr_ml->GenerateMapLine(-distance, "horizontal-left");    
+    else if(id<55)
+        ptr_ml->GenerateMapLine(distance, "horizontal-right");   
+    else if(id<60)
+        ptr_ml->GenerateMapLine(-distance, "horizontal-right");       
+    
 
     ptr_ml->AddObservation(robot_trajectory->traject_gt_Twc_, add_noise_to_meas);
     lines_gt.push_back(ptr_ml->pos_world_);
     vec_meas_keyframe_ml.push_back(ptr_ml->vec_obs_);
     vec_gt_keyframe_ml.push_back(ptr_ml->vec_obs_gt_);
-
    }
+
+   for(int j=0, jend=robot_trajectory->traject_gt_Twc_.size(); j<jend; j++)
+   {
+    std::cout<<"the "<< j <<" th camera detects "<<robot_trajectory->contain_mp_cams_[j]
+             << " mappoints"<< std::endl;
+    
+   }
+
+   
  
    simulator::Reconstruct recon;
    recon.Triangulation(vec_meas_keyframe_mp,robot_trajectory->traject_gt_Twc_);

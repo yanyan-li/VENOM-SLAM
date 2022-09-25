@@ -2,7 +2,7 @@
 * @Author: yanyan.li yanyan.li.camp@gmail.com
 * @Date: 2022-08-30 07:38:57
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
- * @LastEditTime: 2022-09-21 16:08:12
+ * @LastEditTime: 2022-09-24 15:04:46
  * @FilePath: /venom/test/test_pointBA.cc
 * @Description: test
 */
@@ -43,13 +43,13 @@ int main(int argc, char **argv)
    {
        simulator::MapPoint * ptr_mp = new simulator::MapPoint(id, robot_trajectory);
        if(id<50)
-           ptr_mp->GenerateMapPoint(distance, 'x');   //left side of the wall
+           ptr_mp->GenerateMapPoint(distance, "vertical-left");   //left side of the wall
        else if(id<100)
-           ptr_mp->GenerateMapPoint(-distance, 'x');  //right side
+           ptr_mp->GenerateMapPoint(-distance, "vertical-left");  //right side
        else if(id<150)
-           ptr_mp->GenerateMapPoint(distance, 'y');   // front side
+           ptr_mp->GenerateMapPoint(distance, "vertical-right");   // front side
        else if(id<200)
-           ptr_mp->GenerateMapPoint(-distance, 'y');  // back side
+           ptr_mp->GenerateMapPoint(-distance, "vertical-right");  // back side
  
        ptr_mp->AddObservation( robot_trajectory->traject_gt_Twc_, add_noise_to_meas);   
        //ptr_mp->print();

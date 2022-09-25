@@ -140,8 +140,8 @@ namespace simulator
                    if(fov0 > 60) continue;
 
                    // key：camera id,  value：number of detected point
-                   traject_->setKeyFrameDetects(i); 
-                   //std::cout<<"the "<<i<<" th camera. "<<trajec_.contain_feature_cams_[i]<<std::endl;
+                   traject_->SetKeyFrameDetects(i); 
+                   //std::cout<<"the "<<i<<" th camera. "<<trajec_.contain_mp_cams_[i]<<std::endl;
                    observed++;
                   
                    // observation: <key: Trajectory_id, value: 该相机坐标系下的(x_0,y_0,1)>d
