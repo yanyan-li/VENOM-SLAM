@@ -14,10 +14,10 @@
   <a href="https://">
     <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg">
   </a>
-    <a href="https://github.com/yanyan-li/VENOM/version.md"><img src="https://img.shields.io/badge/Version-0.01-green.svg"></a>
+    <a href="https://github.com/yanyan-li/VENOM/blob/master/version.md"><img src="https://img.shields.io/badge/Version-0.01-green.svg"></a>
 </p>
 
-## 
+
 A simulator is a super important tool for testing SLAM modules, especially for newly proposed ideas, as it is easy to check the validity of your ideas in a controlled environment.
 
 #### 1. Prerequisites based on Docker 
@@ -49,7 +49,6 @@ make
 ```
 
 
-
 ![env](images/env.png)
 
 <h5 align="center">
@@ -64,7 +63,11 @@ make
 <h5 align="center">
     Environment 2.
 </h5> 
+![frame-meas](images/frame-meas.png)
 
+<h5 align="center">
+    x: frame_id; y: Measurements detected by each frame.
+</h5> 
 
 ##### 2.2 Optimization map points 
 
