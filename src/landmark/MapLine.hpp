@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-17 16:49:21
- * @LastEditTime: 2022-09-24 17:29:56
+ * @LastEditTime: 2022-09-27 16:46:04
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/src/landmark/MapLine.hpp
@@ -131,11 +131,13 @@ namespace simulator
                    ob_cam.normalize();
                    // std::cout<<"\033[0;34m ob_cam: \033[0m"<<ob_cam<<std::endl;
                    
-                   // angle between 光线 和 图像中心 之间的夹角。这个夹角太大，我们就认为观测不到了
-                   double fov0 = 0; //std::acos(center.dot((ob_cam.block(0,0,3,1)))); 
+                   // ray angle 
+                   Eigen::Vector3d ray = ob_cam.block(0,0,3,1);
+                   double fov0 = std::acos(center.dot( ray)); 
                    fov0 = fov0 / M_PI * 180.;
                    if(fov0 > 60) continue;
-                   fov0 = 0; //std::acos(center.dot((ob_cam.block(0,1,3,1)))); 
+                   ray = ob_cam.block(0,1,3,1);
+                   fov0 = std::acos(center.dot( ray )); 
                    fov0 = fov0 / M_PI * 180.;
                    if(fov0 > 60) continue;
 
