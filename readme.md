@@ -63,13 +63,11 @@ make
 <h5 align="center">
     Environment 2.
 </h5> 
-
-
-![frame-meas](images/frame-meas.png)
-
 <h5 align="center">
-    x: frame_id; y: Measurements detected by each frame.
+    x: frame_id; y: Measurements detected by each frame.(Left: mappoints; Right: maplines. )
 </h5> 
+
+![](images/line-point-meas.png)
 
 ##### 2.2 Optimization map points 
 
