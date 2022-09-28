@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-18 02:53:44
- * @LastEditTime: 2022-09-28 16:18:57
+ * @LastEditTime: 2022-09-28 16:35:35
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/src/visulizer/Visualizer.hpp
@@ -82,7 +82,8 @@ namespace simulator
                // 新建按钮和选择框，第一个参数为按钮的名字，第二个为默认状态，第三个为是否有选择框
                pangolin::CreatePanel("menu").SetBounds(0.0,1.0,0.0,pangolin::Attach::Pix(275));
                
-               
+               pangolin::Var<bool> menuWhite("menu.White Background",false,true);
+
                pangolin::Var<int> traject_num("menu.KeyFrame Number", 100, 50, 200);
                pangolin::Var<int> traject_type("menu.Trajectory Type", 0, 0, 4);
                pangolin::Var<int> vert_points("menu.Vertical Points", 20, 4, 40);
@@ -98,7 +99,6 @@ namespace simulator
                pangolin::Var<int> set_vert_lines("menu.Num of Vertical Lines:", 0);
                pangolin::Var<int> set_horiz_lines("menu.Num of Horizontal Lines:", 0);
 
-               pangolin::Var<bool> menuWhite("menu.White Background",false,true);
                pangolin::Var<bool> menuShowTrajectory("menu.Show TrajectoryGT",true,true);
                pangolin::Var<bool> menuShowTrajectoryOpti("menu.Show TrajectoryOpti", false, true);
            //    pangolin::Var<bool> menuShowTrajectoryPoint("menu.Show TrajectoryPoint",true,true);
