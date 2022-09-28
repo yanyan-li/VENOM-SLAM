@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-18 02:53:44
- * @LastEditTime: 2022-09-24 16:35:26
+ * @LastEditTime: 2022-09-28 16:18:57
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/src/visulizer/Visualizer.hpp
@@ -13,6 +13,8 @@
 #include <vector>
 #include <eigen3/Eigen/Dense>
 #include <pangolin/pangolin.h>
+#include <pangolin/var/var.h>
+#include <pangolin/var/varextra.h>
 
 namespace simulator
 {
@@ -43,6 +45,17 @@ namespace simulator
                Twcs_ = Twcs;         // optimized Twcs
            }
 
+           /**
+            * @brief Set the Env Parameter object
+            * 
+            * @param mappoints 
+            * @param maplines 
+            * @param Twcs_gt 
+            * @param Twcs 
+            * @param point_obs 
+            * @param tri_point_inverse_depth 
+            * @param tri_point_xyz 
+            */
            void SetEnvParameter(std::vector<Eigen::Vector3d> &mappoints, std::vector<Eigen::Matrix<double,3,2>> &maplines, std::vector<Eigen::Matrix4d> &Twcs_gt,
                                std::vector<Eigen::Matrix4d> &Twcs, std::vector<std::vector<std::pair< int,Eigen::Vector3d>>> &point_obs,
                                std::vector<double> &tri_point_inverse_depth, std::vector<Eigen::Vector3d> &tri_point_xyz)
@@ -59,18 +72,32 @@ namespace simulator
  
            void show()
            {
-               pangolin::CreateWindowAndBind(" VENOM (1.0.0) SLAM (backend) Simulator",1024,768);
+               pangolin::CreateWindowAndBind(" VENOM (0.0.1) SLAM (backend) Simulator",1024,768);
                // 3D Mouse handler requires depth testing to be enabled
-               // 启动深度测试，OpenGL只绘制最前面的一层，绘制时检查当前像素前面是否有别的像素，如果别的像素挡住了它，那它就不会绘制
                glEnable(GL_DEPTH_TEST);
                // Issue specific OpenGl we might need
-               // 在OpenGL中使用颜色混合
                glEnable(GL_BLEND);
-               // 选择混合选项
                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
  
                // 新建按钮和选择框，第一个参数为按钮的名字，第二个为默认状态，第三个为是否有选择框
                pangolin::CreatePanel("menu").SetBounds(0.0,1.0,0.0,pangolin::Attach::Pix(275));
+               
+               
+               pangolin::Var<int> traject_num("menu.KeyFrame Number", 100, 50, 200);
+               pangolin::Var<int> traject_type("menu.Trajectory Type", 0, 0, 4);
+               pangolin::Var<int> vert_points("menu.Vertical Points", 20, 4, 40);
+               pangolin::Var<int> horiz_points("menu.Horizontal Points", 10, 0, 20);
+               pangolin::Var<int> vert_lines("menu.Vertical Lines", 20, 4, 40);
+               pangolin::Var<int> horiz_lines("menu.Horizontal Lines", 10, 0, 20);
+
+               pangolin::Var<bool> set_env("menu.Build&Fix Environment", false, false);
+               pangolin::Var<int> set_traject_num("menu.Num of KeyFrames:", 0);
+               pangolin::Var<int> set_traject_type("menu.Selected Trajectory Type:", 0);
+               pangolin::Var<int> set_vert_points("menu.Num of Vertical Points:", 0);
+               pangolin::Var<int> set_horiz_points("menu.Num of Horizontal Points:", 0);
+               pangolin::Var<int> set_vert_lines("menu.Num of Vertical Lines:", 0);
+               pangolin::Var<int> set_horiz_lines("menu.Num of Horizontal Lines:", 0);
+
                pangolin::Var<bool> menuWhite("menu.White Background",false,true);
                pangolin::Var<bool> menuShowTrajectory("menu.Show TrajectoryGT",true,true);
                pangolin::Var<bool> menuShowTrajectoryOpti("menu.Show TrajectoryOpti", false, true);
@@ -81,14 +108,17 @@ namespace simulator
                pangolin::Var<bool> menuShowPoint("menu.Groudtruth Point",true,true);
                pangolin::Var<bool> menuShowPointRecon("menu.Reconstructed Point",false,true);
                pangolin::Var<bool> meanShowPointOpti("menu.Optimize Point",false,true);
-               pangolin::Var<bool> menuShowLine("menu.Groudtruth Line",true,true);
+               pangolin::Var<bool> menuShowLine("menu.Groudtruth Line",true,true); 
+               
+
+
                // pangolin::Var<bool> menuShowOptiLines("menu.Show Opti Lines",true,true);
  
                // Define Trajectory Render Object (for view / scene browsing)
-               // 定义相机投影模型：ProjectionMatrix(w, h, fu, fv, u0, v0, zNear, zFar)
-               // 定义观测方位向量：观测点位置：(mViewpointX mViewpointY mViewpointZ)
-               //                观测目标位置：(0, 0, 0)
-               //                观测的方位向量：(0.0,-1.0, 0.0)
+               // Define camera projection model：ProjectionMatrix(w, h, fu, fv, u0, v0, zNear, zFar)
+               // Define measurement orientation：(mViewpointX mViewpointY mViewpointZ)
+               //                view position：(0, 0, 0)
+               //                view direction angle：(0.0,-1.0, 0.0)
                pangolin::OpenGlRenderState s_cam(
                        pangolin::ProjectionMatrix(1024,768,500,500,512,389,0.1,1000),
                        pangolin::ModelViewLookAt(0,-0.7,10.8, 0,0, -50.0 ,0.0,10.0, 10.0)
@@ -119,24 +149,41 @@ namespace simulator
                bool line_id_change = false;
  
                int cut_i = 0;
+               bool click_once = true;
+
  
                while(!pangolin::ShouldQuit() )
                {
                    // while(!EstOK)
                    // cv::waitKey(100);
-                   // 清除缓冲区中的当前可写的颜色缓冲 和 深度缓冲
+                   // clear
                    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
  
  
                    d_cam.Activate(s_cam);
                    // 步骤3：绘制地图和图像
-                   // 设置为白色，glClearColor(red, green, blue, alpha），数值范围(0, 1)
+                   // 设置为白色，glClearColor(red, green, blue, alpha），range:(0, 1)
                    if(menuWhite)
                        glClearColor(1.0f,1.0f,1.0f,1.0f);
                    else
                        glClearColor(0.0f,0.0f,0.0f,0.0f);
- 
- 
+
+                   if (click_once)
+                   {
+                       if (set_env)
+                       {
+                           set_traject_num = traject_num;
+                           set_traject_type = traject_type;
+                           set_vert_points = vert_points;
+                           set_horiz_points = horiz_points;
+                           set_vert_lines = vert_lines;
+                           set_horiz_lines = horiz_lines;
+                           std::cout << std::endl
+                                     << "\033[0;35m [Venom Similator Printer] The Environment was constructed. \033[0m" << std::endl;
+                           click_once = false;
+                       }
+                   }
+
                    const double lens = 0.5;
                    glLineWidth(2.0);
                    glBegin(GL_LINES);
@@ -202,7 +249,9 @@ namespace simulator
                        std::vector<pangolin::OpenGlMatrix>  MsTrue;
                        CallTrajectoryTrue(MsTrue, Twcs_);
                        DrawAllOptiTrajectory(MsTrue);
-                   }
+                   } 
+
+                   
                   
            //        if(menuShowTrajectoryOpti)
            //        {

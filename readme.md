@@ -37,6 +37,12 @@ Red point are ground truth **landmarks**, while reconstructed **mappoints** gene
 
 Trajectory: Cycle, Sphere and so on.
 
+##### 2.0 interface
+
+The environment including trajectory and landmarks can be designed though this interface. 
+
+![interface](images/interface.png)
+
 ##### 2.1 Show Env
 
 ```
