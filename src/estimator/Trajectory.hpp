@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-17 15:22:39
- * @LastEditTime: 2022-09-25 15:31:18
+ * @LastEditTime: 2022-09-29 16:48:57
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: This class is to generate different types of camera poses. 
  * @FilePath: /venom/src/estimator/Trajectory.hpp
@@ -36,6 +36,8 @@ namespace simulator
         Trajectory(const int type,  const int num_keyframe )
         {   
             obs= std::vector< std::vector<std::pair<int /* */, Eigen::Vector3d>>>(num_keyframe, std::vector<std::pair<int /* */, Eigen::Vector3d>>());//.reserve(num_keyframe);
+            obs_line_= std::vector< std::vector<std::pair<int /* */, Eigen::Matrix<double,3,2>>>>(num_keyframe, std::vector<std::pair<int /* */, Eigen::Matrix<double,3,2>>>());//.reserve(num_keyframe);
+
             //traject_gt_Twc_ = std::vector<Eigen::Matrix4d>(2*num_keyframe, Eigen::Matrix4d::Zero()) ;
             
             
@@ -173,31 +175,46 @@ namespace simulator
             // the id th cam detects n features  
             contain_mp_cams_[frame_id]++;
             //std::cout<<"frame_id: "<<frame_id <<", "<<contain_mp_cams_[frame_id]<<std::endl;
-
             // add observation
             AddObservation(frame_id, mappoint_id, measument);
-
         }
-
-
         /**
          * @brief Set the Key Frame Detects object
          * 
          * @param frame_id 
          */
-        void SetKeyFrameDetects(int frame_id)
+        void SetKeyFrameDetects(int frame_id, int mapline_id, Eigen::Matrix<double, 3, 2> ml_measument)
         {   
             // the id th cam detects n features  
             contain_ml_cams_[frame_id]++;
+            AddObservation(frame_id, mapline_id, ml_measument);
         }
-
+        /**
+         * @brief Set the Key Frame Detects object
+         * 
+         * @param frame_id 
+         * @param manhattanworld_id 
+         * @param mw_measument 
+         */
+        void SetKeyFrameDetects(int frame_id, int manhattanworld_id, Eigen::Matrix3d mw_measument)
+        {
+            contain_mw_cams_[frame_id]++;
+            AddObservation(frame_id, manhattanworld_id, mw_measument);
+        }
         // 
         void AddObservation(int frame_id, int mappoint_id, Eigen::Vector3d measurement)
         {
             //std::cout<<"frame if"<< frame_id <<", "<<obs.size()<<", "<< mappoint_id<<", "<<measurement<<std::endl;
-
             obs[frame_id].push_back(std::make_pair( mappoint_id, measurement)); ///std::pair<mappoint_id, measurement>);
             //std::cout<<"frame if:"<<obs.size()<<std::endl;
+        }
+        void AddObservation(int frame_id, int mapline_id, Eigen::Matrix<double,3,2> measurement)
+        {
+            obs_line_[frame_id].push_back(std::make_pair(mapline_id, measurement));
+        }
+        void AddObservation(int frame_id, int manhattanworld_id, Eigen::Matrix3d mw_measurement)
+        {
+            obs_mw_[frame_id].push_back(std::make_pair(manhattanworld_id, mw_measurement));
         }
 
     public:
@@ -210,19 +227,24 @@ namespace simulator
 
         // the i th cam, detects the id th mappoint, with the 3D coordinate
         std::vector< std::vector<std::pair<int /* */, Eigen::Vector3d>>> obs;
-
         std::vector< std::vector<std::pair<int, Eigen::Vector3d>>> obs_gt; 
 
-         // the i th cam, detects the id th mappoint, with the 3D coordinate
+        // the i th cam, detects the id th mappoint, with the 3D coordinate
         std::vector< std::vector<std::pair<int /* */, Eigen::Matrix<double,3,2>>>> obs_line_;
         std::vector< std::vector<std::pair<int, Eigen::Matrix<double,3,2>>>> obs_line_gt_;
-        
+
+        // the i th cam, detects the id th ManhattanWorld, with the RO3 coordinate
+        std::vector< std::vector< std::pair<int, Eigen::Matrix3d>>> obs_mw_; 
+        std::vector< std::vector< std::pair<int, Eigen::Matrix3d>>> obs_mw_gt_; 
+
+
         // std::vector<std::pair<int /* */, int> >  
 
         TrajectoryType traject_type_;
-        // mappoint and mapline
+        // key: frame_id; value: primitive_nums
         std::map<int, int> contain_mp_cams_;
         std::map<int, int> contain_ml_cams_;
+        std::map<int, int> contain_mw_cams_;
 
     protected:
         Eigen::Vector3d pos_normalized_Trajectory;

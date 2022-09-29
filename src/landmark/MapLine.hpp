@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-17 16:49:21
- * @LastEditTime: 2022-09-27 16:46:04
+ * @LastEditTime: 2022-09-29 16:43:50
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/src/landmark/MapLine.hpp
@@ -141,8 +141,10 @@ namespace simulator
                    fov0 = fov0 / M_PI * 180.;
                    if(fov0 > 60) continue;
 
-                   // key：camera id,  value：number of detected point
-                   traject_->SetKeyFrameDetects(i); 
+                   // vec：camera id,  
+                   // vec: line id, 
+                   // Eigen::Matrix<double,3,2>
+                   traject_->SetKeyFrameDetects(i, this->num_id_, ob_cam); 
                    //std::cout<<"the "<<i<<" th camera. "<<trajec_.contain_mp_cams_[i]<<std::endl;
                    observed++;
                   
