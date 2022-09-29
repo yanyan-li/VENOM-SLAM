@@ -39,7 +39,7 @@ Trajectory: Cycle, Sphere and so on.
 
 ##### 2.0 interface
 
-To help users build an environment more conveniently, the following software interface is made to design your synthetic environment in a super simple way.
+To help users build environments more conveniently, the following software interface is made to design your synthetic environment in a super simple way.
 
 ![interface](images/interface.png)
 
