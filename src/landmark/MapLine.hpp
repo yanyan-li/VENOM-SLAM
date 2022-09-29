@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-17 16:49:21
- * @LastEditTime: 2022-09-29 16:43:50
+ * @LastEditTime: 2022-09-29 17:07:08
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/src/landmark/MapLine.hpp
@@ -25,6 +25,10 @@ namespace simulator
            int num_id_;
            // how many Trajectorys detect this point
            int observed;
+           // type: 0, 1, 2
+           int vanishing_direction_type_;
+           // The normalized vanishing direction to which the 3D line belongs
+           Eigen::Vector3d vanishing_direction_;
            // endpoints parametrization in the world coordinate
            Eigen::Matrix<double,3,2> pos_world_;
            Eigen::Matrix<double,3,2> pos_world_noise_; 
@@ -66,7 +70,11 @@ namespace simulator
                {
                 pos_world_(0,0) = distance; pos_world_(0,1) = distance; 
                 pos_world_(1,0) = point_generate(generator_); pos_world_(1,1) = pos_world_(1,0);
-                pos_world_(2,0) = 2.; pos_world_(2,1) = -3.;
+                pos_world_(2,0) = 2.; pos_world_(2,1) = -3.; 
+
+                vanishing_direction_type_ = 0;
+                vanishing_direction_ = (pos_world_.block(0,0,3,1)-pos_world_.block(0,1,3,1)).normalized();
+                // std::cout<<" vanishing_direction: "<<vanishing_direction_<<std::endl;
 
                }
                else if(axis == "vertical-right")
@@ -74,6 +82,10 @@ namespace simulator
                 pos_world_(0,0) = point_generate(generator_); pos_world_(0,1) = pos_world_(0,0);
                 pos_world_(1,0) = distance; pos_world_(1,1) = distance; 
                 pos_world_(2,0) = 2.; pos_world_(2,1) = -3.;
+                vanishing_direction_type_ = 0; 
+                vanishing_direction_ = (pos_world_.block(0,0,3,1)-pos_world_.block(0,1,3,1)).normalized();
+                // std::cout<<" vanishing_direction: "<<vanishing_direction_<<std::endl;
+
                }
                else if(axis == "horizontal-left")
                {
@@ -81,6 +93,10 @@ namespace simulator
                 pos_world_(0,0) = point_generate(generator_); pos_world_(0,1) = pos_world_(0,0);
                 pos_world_(1,0) = -4.; pos_world_(1,1) = 4.; 
                 pos_world_(2,0) = -3.2; pos_world_(2,1) = -3.2;
+                vanishing_direction_type_ = 1;
+                vanishing_direction_ = (pos_world_.block(0,0,3,1)-pos_world_.block(0,1,3,1)).normalized();
+                // std::cout<<" vanishing_direction: "<<vanishing_direction_<<std::endl;
+
                }
                else if(axis == "horizontal-right")
                {
@@ -88,6 +104,10 @@ namespace simulator
                 pos_world_(0,0) = -4.; pos_world_(0,1) = 4.; 
                 pos_world_(1,0) = point_generate(generator_); pos_world_(1,1) = pos_world_(1,0);
                 pos_world_(2,0) = -3.2; pos_world_(2,1) = -3.2;
+                vanishing_direction_type_ = 2;
+                vanishing_direction_ = (pos_world_.block(0,0,3,1)-pos_world_.block(0,1,3,1)).normalized();
+                // std::cout<<" vanishing_direction: "<<vanishing_direction_<<std::endl;
+
                }
 
            }
