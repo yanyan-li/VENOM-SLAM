@@ -1,7 +1,7 @@
 /*
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-22 16:10:56
- * @LastEditTime: 2022-09-27 17:42:31
+ * @LastEditTime: 2022-09-29 23:36:23
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description:
  * @FilePath: /venom/test/test_show_env.cc
@@ -37,10 +37,12 @@ int main(int argc, char **argv)
 
     //--> landmarks generation
     // mappoints
+    std::vector<simulator::MapPoint*> vec_ptr_mappoints;
     std::vector<Eigen::Vector3d> points_gt;
     std::vector<std::vector<std::pair<int, Eigen::Vector3d>>> vec_meas_keyframe_mp;
     std::vector<std::vector<std::pair<int, Eigen::Vector3d>>> vec_gt_keyframe_mp;
     // maplines
+    std::vector<simulator::MapLine* > vec_ptr_maplines;
     std::vector<Eigen::Matrix<double, 3, 2>> lines_gt;
     std::vector<std::vector<std::pair<int, Eigen::Matrix<double, 3, 2>>>> vec_meas_keyframe_ml;
     std::vector<std::vector<std::pair<int, Eigen::Matrix<double, 3, 2>>>> vec_gt_keyframe_ml;
@@ -65,11 +67,13 @@ int main(int argc, char **argv)
         vec_gt_keyframe_mp.push_back(ptr_mp->obs_gt);
     }
 
+#ifdef __VERBOSE__
     for (int j = 0, jend = robot_trajectory->traject_gt_Twc_.size(); j < jend; j++)
     {
         std::cout << "the " << j << " th camera detects " << robot_trajectory->contain_mp_cams_[j]
                   << " mappoints" << std::endl;
     }
+#endif
 
     for (int id = 0; id < 60; id++)
     {
@@ -94,15 +98,17 @@ int main(int argc, char **argv)
         ptr_ml->AddObservation(robot_trajectory->traject_gt_Twc_, add_noise_to_meas);
         lines_gt.push_back(ptr_ml->pos_world_);
         vec_meas_keyframe_ml.push_back(ptr_ml->vec_obs_);
-        vec_gt_keyframe_ml.push_back(ptr_ml->vec_obs_gt_);
+        vec_gt_keyframe_ml.push_back(ptr_ml->vec_obs_gt_); 
+        vec_ptr_maplines.push_back(ptr_ml);
     }
-
+    
+#ifdef __VERBOSE__
     for (int j = 0, jend = robot_trajectory->traject_gt_Twc_.size(); j < jend; j++)
     {
         std::cout << "the " << j << " th camera detects " << robot_trajectory->contain_ml_cams_[j]
                   << " maplines" << std::endl;
     }
-
+#endif
     
     
     simulator::Reconstruct recon;

@@ -10,7 +10,15 @@ LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
 # installed in docker already 
 find_package(Pangolin REQUIRED)
 find_package(OpenCV REQUIRED)
-find_package(Eigen3 REQUIRED)
+find_package(Eigen3 REQUIRED) 
+
+option(VERBOSE "Venom Similator Printer" OFF)
+
+if(VERBOSE)
+ message(STATUS "VERBOSE")
+ add_definitions(-D__VERBOSE__)
+endif()
+
 
 # installed later if you need
 find_package(Ceres REQUIRED)
@@ -30,6 +38,7 @@ INCLUDE_DIRECTORIES(
 add_subdirectory(thirdparty)
 
 file(GLOB SOURCEFILES src/*.hpp)
+
 add_library(PointLinePlaneParamLib SHARED ${SOURCEFILES})
 target_link_libraries(PointLinePlaneParamLib
         ${OpenCV_LIBS}
@@ -38,6 +47,17 @@ target_link_libraries(PointLinePlaneParamLib
         ${CERES_LIBRARIES}
         gtsam
         )
-# Landmark optimization -LBA
+
+#########---show environment---###################
+add_executable(show_estimator_env test/test_show_env.cc )
+target_link_libraries(show_estimator_env PointLinePlaneParamLib ${CMAKE_THREAD_LIBS_INIT}) 
+
+#########---Landmark optimization LBA---##########
 add_executable(test_pointBA test/test_pointBA.cc )
 target_link_libraries(test_pointBA PointLinePlaneParamLib ${CMAKE_THREAD_LIBS_INIT}) 
+
+
+#########---show interface---###################
+add_executable(test_interface test/test_interface.cc)
+target_link_libraries(test_interface PointLinePlaneParamLib ${CMAKE_THREAD_LIBS_INIT}) 
+
