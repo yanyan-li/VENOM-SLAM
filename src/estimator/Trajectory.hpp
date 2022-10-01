@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-17 15:22:39
- * @LastEditTime: 2022-09-29 16:48:57
+ * @LastEditTime: 2022-10-01 04:32:47
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: This class is to generate different types of camera poses. 
  * @FilePath: /venom/src/estimator/Trajectory.hpp
@@ -39,8 +39,6 @@ namespace simulator
             obs_line_= std::vector< std::vector<std::pair<int /* */, Eigen::Matrix<double,3,2>>>>(num_keyframe, std::vector<std::pair<int /* */, Eigen::Matrix<double,3,2>>>());//.reserve(num_keyframe);
 
             //traject_gt_Twc_ = std::vector<Eigen::Matrix4d>(2*num_keyframe, Eigen::Matrix4d::Zero()) ;
-            
-            
             if(type==0)
             {
                 traject_type_=CYCLE;

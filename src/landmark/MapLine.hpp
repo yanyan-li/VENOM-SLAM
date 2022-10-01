@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-17 16:49:21
- * @LastEditTime: 2022-09-29 17:07:08
+ * @LastEditTime: 2022-10-01 13:53:05
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/src/landmark/MapLine.hpp
@@ -109,7 +109,6 @@ namespace simulator
                 // std::cout<<" vanishing_direction: "<<vanishing_direction_<<std::endl;
 
                }
-
            }
           
            /**
