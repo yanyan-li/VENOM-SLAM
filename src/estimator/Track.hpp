@@ -18,12 +18,14 @@
 #include <algorithm>
 
 #include "Trajectory.hpp"
+#include "../landmark/MapVenom.hpp"
 #include "../landmark/MapLine.hpp"
 
 namespace simulator
 {
     class Trajectory;
     class MapLine;
+    class MapVeom;
 
     class Track
     {
@@ -61,7 +63,6 @@ namespace simulator
                 for (int observ_ml_i = 0, observ_ml_end = robot_traject_->obs_line_[frame_id].size(); observ_ml_i < observ_ml_end; observ_ml_i++)
                 {
                     int ml_id = robot_traject_->obs_line_[frame_id][observ_ml_i].first;
-
                     // detected vanishing direction (maplines)
                     Eigen::Matrix<double, 3, 2> ml_pos = robot_traject_->obs_line_[frame_id][observ_ml_i].second;
                     Eigen::Vector3d vd = (ml_pos.block(0, 0, 3, 1) - ml_pos.block(0, 1, 3, 1)).normalized();
@@ -88,13 +89,14 @@ namespace simulator
                 if (set_vd_type.size() >= 2) // Vanom is detected
                 {
                     int venom_type = VenomFrameGeneration(vec_type_direction, venom_axis);
-                    Eigen::Matrix3d frame_venom_cm_id = RotationCamera2Venom(venom_type, venom_axis);
+                    Eigen::Matrix3d rotation_frame_venom_cam_id = RotationCamera2Venom(venom_type, venom_axis);
 #ifdef __VERBOSE__                    
                     std::cout <<"\033[0;35m [Venom Simulator Printer]: venom is detected. " << std::endl
                     <<"The venom_type is "<<venom_type
-                    <<". And the rotation from camera to venom is \033[0m"<<std::endl<<frame_venom_cm_id<<std::endl;
-#endif                    
-                
+                    <<". And the rotation from camera to venom is \033[0m"<<std::endl<<rotation_frame_venom_cam_id<<std::endl;
+#endif          
+                    robot_traject_->SetKeyFrameDetects(frame_id, venom_type,rotation_frame_venom_cam_id);    
+
                 }
             }
         }
@@ -210,5 +212,44 @@ namespace simulator
             // TODO: make it orthogonal
             return R_cm;
         }
+   
+        void VenomAssociation()
+        {
+            std::set<int> set_new_venom;
+            std::vector<simulator::MapVenom*> vec_ptr_mv;
+            for (int frame_id = 0, frame_id_end = robot_traject_->traject_gt_Twc_.size(); frame_id < frame_id_end; frame_id++)
+            {
+                
+                assert(robot_traject_->contain_mw_cams_[frame_id]<=1);
+                
+                if(robot_traject_->obs_mw_[frame_id].size())
+                {
+                    int venom_type = robot_traject_->obs_mw_[frame_id][0].first;
+
+                    //std::cout<<"the venom_type is "<<venom_type<<std::endl;
+                     if (!set_new_venom.count(venom_type)) // the first time deteced
+                     {
+                        //create a new mapvenom
+                        simulator::MapVenom* ptr_mv = new simulator::MapVenom(frame_id, venom_type);
+                        
+                        vec_ptr_mv.push_back(ptr_mv); 
+
+                        set_new_venom.insert(venom_type);
+                     }
+                }
+
+            }
+
+#ifdef __VERBOSE__
+            std::cout<<"vec venom"<< vec_ptr_mv.size()<<std::endl;
+            for(int i=0, i_end=vec_ptr_mv.size(); i<i_end; i++)
+            {
+                std::cout<<"the venom id is "<<vec_ptr_mv[i]->num_id_<<std::endl;
+            }
+
+#endif
+        }
+   
+   
     };
 }

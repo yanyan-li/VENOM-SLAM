@@ -1,7 +1,7 @@
 /*
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-22 16:10:56
- * @LastEditTime: 2022-09-30 00:34:09
+ * @LastEditTime: 2022-10-01 18:10:15
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description:
  * @FilePath: /venom/test/test_show_env.cc
@@ -109,10 +109,15 @@ int main(int argc, char **argv)
         std::cout << "the " << j << " th camera detects " << robot_trajectory->contain_ml_cams_[j]
                   << " maplines" << std::endl;
     }
-#endif 
-    
+#endif
+
+    // detect venom for each frame
     simulator::Track* tracker = new simulator::Track(robot_trajectory, vec_ptr_maplines);
     tracker->VenomFrameDetection();
+
+    tracker->VenomAssociation();
+
+    
     
     simulator::Reconstruct recon;
     recon.Triangulation(vec_meas_keyframe_mp, robot_trajectory->traject_gt_Twc_);
