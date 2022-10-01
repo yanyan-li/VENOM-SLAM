@@ -87,11 +87,13 @@ namespace simulator
 
                 if (set_vd_type.size() >= 2) // Vanom is detected
                 {
-                    std::cout << "venom is detected" << std::endl;
                     int venom_type = VenomFrameGeneration(vec_type_direction, venom_axis);
-                    std::cout<<"venom_type: "<<venom_type<<std::endl;
                     Eigen::Matrix3d frame_venom_cm_id = RotationCamera2Venom(venom_type, venom_axis);
-                    std::cout<<"frame_venom_cm_id: "<<frame_venom_cm_id<<std::endl;
+#ifdef __VERBOSE__                    
+                    std::cout <<"\033[0;35m [Venom Simulator Printer]: venom is detected. " << std::endl
+                    <<"The venom_type is "<<venom_type
+                    <<". And the rotation from camera to venom is \033[0m"<<std::endl<<frame_venom_cm_id<<std::endl;
+#endif                    
                 
                 }
             }
