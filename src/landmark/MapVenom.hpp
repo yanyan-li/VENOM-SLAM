@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-30 14:02:44
- * @LastEditTime: 2022-10-01 18:57:25
+ * @LastEditTime: 2022-10-02 03:19:48
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: Venom 
  * @FilePath: /venom/src/landmark/MapVenom.hpp
@@ -30,6 +30,9 @@ namespace simulator
             int venom_type_;
             Eigen::Matrix3d rotation_venom_world_; 
             //Trajectory* traject_;
+            std::vector< std::pair<int, Eigen::Matrix3d>> vec_obs_;  // noised observation
+            std::vector< std::pair<int, Eigen::Matrix3d>> vec_obs_gt_;  // noised observation
+
 
         public:
             MapVenom(int anchor_frame_id, int type):anchor_frame_id_(anchor_frame_id),
@@ -41,10 +44,10 @@ namespace simulator
 
             
 
-            void AddObservation(std::vector<Eigen::Matrix4d> keyframe_Twcs)
+            void AddObservation(int venom_frame_id, Eigen::Matrix3d rotation_cam_venom)
             {
-
-
+                
+                vec_obs_.push_back(std::make_pair(venom_frame_id, rotation_cam_venom));
 
             }
 

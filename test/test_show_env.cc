@@ -1,7 +1,7 @@
 /*
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-22 16:10:56
- * @LastEditTime: 2022-10-01 18:10:15
+ * @LastEditTime: 2022-10-02 04:49:46
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description:
  * @FilePath: /venom/test/test_show_env.cc
@@ -34,7 +34,7 @@ int main(int argc, char **argv)
     simulator::Trajectory *robot_trajectory = new simulator::Trajectory(0, frame_num);
     robot_trajectory->GenerateTrajectory(simulator::Trajectory::CYCLE, frame_num);
     // robot_trajectory->PrintTrajectory();
-    std::cout << robot_trajectory->traject_gt_Twc_.size() << "\033[m;35 keyframes are generated.\033[0m" << std::endl;
+    // std::cout << robot_trajectory->vec_traject_gt_Twc_.size() << "\033[m;35 keyframes are generated.\033[0m" << std::endl;
 
     //--> landmarks generation
     // mappoints
@@ -60,7 +60,7 @@ int main(int argc, char **argv)
         else if (id < 200)
             ptr_mp->GenerateMapPoint(-distance, "vertical-right"); // back side
 
-        ptr_mp->AddObservation(robot_trajectory->traject_gt_Twc_, add_noise_to_meas);
+        ptr_mp->AddObservation(robot_trajectory->vec_traject_gt_Twc_, add_noise_to_meas);
         // ptr_mp->print();
         points_gt.push_back(ptr_mp->pos_world_);
         // vec_meas_keyframe_mp: mappoint_id<camera_id, mappoint_value>
@@ -69,7 +69,7 @@ int main(int argc, char **argv)
     }
 
 #ifdef __VERBOSE__
-    for (int j = 0, jend = robot_trajectory->traject_gt_Twc_.size(); j < jend; j++)
+    for (int j = 0, jend = robot_trajectory->vec_traject_gt_Twc_.size(); j < jend; j++)
     {
         std::cout << "the " << j << " th camera detects " << robot_trajectory->contain_mp_cams_[j]
                   << " mappoints" << std::endl;
@@ -96,7 +96,7 @@ int main(int argc, char **argv)
         else if (id < 60)
             ptr_ml->GenerateMapLine(-distance, "horizontal-right");
 
-        ptr_ml->AddObservation(robot_trajectory->traject_gt_Twc_, add_noise_to_meas);
+        ptr_ml->AddObservation(robot_trajectory->vec_traject_gt_Twc_, add_noise_to_meas);
         lines_gt.push_back(ptr_ml->pos_world_);
         vec_meas_keyframe_ml.push_back(ptr_ml->vec_obs_);
         vec_gt_keyframe_ml.push_back(ptr_ml->vec_obs_gt_); 
@@ -104,7 +104,7 @@ int main(int argc, char **argv)
     }
     
 #ifdef __VERBOSE__
-    for (int j = 0, jend = robot_trajectory->traject_gt_Twc_.size(); j < jend; j++)
+    for (int j = 0, jend = robot_trajectory->vec_traject_gt_Twc_.size(); j < jend; j++)
     {
         std::cout << "the " << j << " th camera detects " << robot_trajectory->contain_ml_cams_[j]
                   << " maplines" << std::endl;
@@ -120,14 +120,14 @@ int main(int argc, char **argv)
     
     
     simulator::Reconstruct recon;
-    recon.Triangulation(vec_meas_keyframe_mp, robot_trajectory->traject_gt_Twc_);
+    recon.Triangulation(vec_meas_keyframe_mp, robot_trajectory->vec_traject_gt_Twc_);
 
     std::vector<Eigen::Matrix4d> vec_traject_Twc_opti;
-    // simulator::pointLocalBundleAdjustment::optimize(recon.tri_point_xyz_, vec_meas_keyframe_mp, robot_trajectory.traject_gt_Twc_, vec_traject_Twc_opti);
+    // simulator::pointLocalBundleAdjustment::optimize(recon.tri_point_xyz_, vec_meas_keyframe_mp, robot_trajectory.vec_traject_gt_Twc_, vec_traject_Twc_opti);
 
     //  visualization
     simulator::Visualizer viewer;
-    viewer.SetEnvParameter(points_gt, lines_gt, robot_trajectory->traject_gt_Twc_,
+    viewer.SetEnvParameter(points_gt, lines_gt, robot_trajectory->vec_traject_gt_Twc_,
                            vec_traject_Twc_opti, vec_meas_keyframe_mp,
                            recon.tri_point_inverse_depth_, recon.tri_point_xyz_);
     viewer.show();

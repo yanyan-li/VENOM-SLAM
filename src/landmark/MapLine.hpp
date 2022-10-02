@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-17 16:49:21
- * @LastEditTime: 2022-10-01 13:53:05
+ * @LastEditTime: 2022-10-02 05:57:02
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/src/landmark/MapLine.hpp
@@ -147,7 +147,8 @@ namespace simulator
                    
                    //
                    Eigen::Matrix<double,3,2> ob_cam = ob;
-                   ob_cam.normalize();
+                   ob_cam.block(0,0,3,1).normalize();
+                   ob_cam.block(0,1,3,1).normalize();
                    // std::cout<<"\033[0;34m ob_cam: \033[0m"<<ob_cam<<std::endl;
                    
                    // ray angle 

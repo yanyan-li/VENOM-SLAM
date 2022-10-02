@@ -34,6 +34,7 @@ namespace simulator
         std::vector<std::vector<std::pair<int /* */, Eigen::Matrix<double, 3, 2>>>> obs_line_;
         Trajectory *robot_traject_;
         std::vector<MapLine *> vec_ptr_mls_;
+        
 
     public:
         // initialization
@@ -44,7 +45,7 @@ namespace simulator
         Eigen::Matrix3d VenomFrameDetection()
         {
             // detect venom (non-parallel directions)
-            for (int frame_id = 0, frame_id_end = robot_traject_->traject_gt_Twc_.size(); frame_id < frame_id_end; frame_id++)
+            for (int frame_id = 0, frame_id_end = robot_traject_->vec_traject_gt_Twc_.size(); frame_id < frame_id_end; frame_id++)
             {
 
 #ifdef __VERBOSE__
@@ -215,9 +216,10 @@ namespace simulator
    
         void VenomAssociation()
         {
+            //
             std::set<int> set_new_venom;
             std::vector<simulator::MapVenom*> vec_ptr_mv;
-            for (int frame_id = 0, frame_id_end = robot_traject_->traject_gt_Twc_.size(); frame_id < frame_id_end; frame_id++)
+            for (int frame_id = 0, frame_id_end = robot_traject_->vec_traject_gt_Twc_.size(); frame_id < frame_id_end; frame_id++)
             {
                 
                 assert(robot_traject_->contain_mw_cams_[frame_id]<=1);
@@ -246,10 +248,42 @@ namespace simulator
             {
                 std::cout<<"the venom id is "<<vec_ptr_mv[i]->num_id_<<std::endl;
             }
-
 #endif
+            //TODO: associate each frame to mv
+            for(int i=0, i_end=vec_ptr_mv.size(); i<i_end; i++)
+            {
+                
+                int venom_type = vec_ptr_mv[i]->venom_type_; 
+                int anchor_frame_id = vec_ptr_mv[i]->anchor_frame_id_;
+                for (int frame_id = 0, frame_id_end = robot_traject_->vec_traject_gt_Twc_.size(); frame_id < frame_id_end; frame_id++)
+                {
+                    if(venom_type == robot_traject_->obs_mw_[frame_id][0].first)
+                    {
+                        if(frame_id == anchor_frame_id)
+                            continue;
+                        assert(frame_id>=anchor_frame_id);
+                        vec_ptr_mv[i]->AddObservation(frame_id, robot_traject_->obs_mw_[frame_id][0].second);
+                        vec_ptr_mv[i]->observed_+=1;
+
+                        // compute rotation 
+
+                        Eigen::Matrix3d R_1_v = robot_traject_->obs_mw_[frame_id][0].second;
+                        Eigen::Matrix3d R_2_v = robot_traject_->obs_mw_[anchor_frame_id][0].second;
+
+                        //
+                        Eigen::Matrix3d R_3_v = robot_traject_->vec_traject_gt_Twc_[frame_id].block(0,0,3,3);
+                        Eigen::Matrix3d R_4_v = robot_traject_->vec_traject_gt_Twc_[anchor_frame_id].block(0,0,3,3);
+
+                        std::cout<<"from venom1: "<<std::endl<<R_1_v.inverse()*R_2_v<<std::endl<<", from gt: "<<std::endl<<R_3_v.transpose()*R_4_v<<std::endl;
+                        std::cout<<"from venom2: "<<std::endl<<R_1_v*R_2_v.inverse()<<std::endl<<", from gt: "<<std::endl<<R_3_v.transpose()*R_4_v<<std::endl;
+
+                    }
+
+                }
+
+            }
+        
         }
-   
-   
+
     };
 }

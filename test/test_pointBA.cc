@@ -51,7 +51,7 @@ int main(int argc, char **argv)
        else if(id<200)
            ptr_mp->GenerateMapPoint(-distance, "vertical-right");  // back side
  
-       ptr_mp->AddObservation( robot_trajectory->traject_gt_Twc_, add_noise_to_meas);   
+       ptr_mp->AddObservation( robot_trajectory->vec_traject_gt_Twc_, add_noise_to_meas);   
        //ptr_mp->print();
        points_gt.push_back(ptr_mp->pos_world_);
        // vec_meas_keyframe_mp: mappoint_id<camera_id, mappoint_value>
@@ -61,14 +61,14 @@ int main(int argc, char **argv)
    }
  
    simulator::Reconstruct recon;
-   recon.Triangulation(vec_meas_keyframe_mp,robot_trajectory->traject_gt_Twc_);
+   recon.Triangulation(vec_meas_keyframe_mp,robot_trajectory->vec_traject_gt_Twc_);
   
    std::vector<Eigen::Matrix4d> vec_traject_Twc_opti;
-   // simulator::pointLocalBundleAdjustment::optimize(recon.tri_point_xyz_, vec_meas_keyframe_mp, robot_trajectory.traject_gt_Twc_, vec_traject_Twc_opti);
+   // simulator::pointLocalBundleAdjustment::optimize(recon.tri_point_xyz_, vec_meas_keyframe_mp, robot_trajectory.vec_traject_gt_Twc_, vec_traject_Twc_opti);
  
    //  visualization
    simulator::Visualizer viewer;
-   viewer.SetParameter(points_gt, robot_trajectory->traject_gt_Twc_,
+   viewer.SetParameter(points_gt, robot_trajectory->vec_traject_gt_Twc_,
                vec_traject_Twc_opti, vec_meas_keyframe_mp,
                recon.tri_point_inverse_depth_, recon.tri_point_xyz_);
    viewer.show();

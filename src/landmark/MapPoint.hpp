@@ -54,8 +54,8 @@ namespace simulator
                pixel_n_ = pixel_n; 
 
                // initialize 
-               obs.reserve(trajec_->traject_gt_Twc_.size());
-               obs_gt.reserve(trajec_->traject_gt_Twc_.size());
+               obs.reserve(trajec_->vec_traject_gt_Twc_.size());
+               obs_gt.reserve(trajec_->vec_traject_gt_Twc_.size());
            }
 
            void GenerateMapPoint(const double distance, std::string axis)
@@ -70,8 +70,8 @@ namespace simulator
                // after generating the mappoint
                // add observatin  
                bool add_noise = true;
-               //std::cout<<"keuframe size: "<<trajec_->traject_gt_Twc_.size()<<std::endl;
-               // AddObservation(trajec_->traject_gt_Twc_, add_noise );
+               //std::cout<<"keuframe size: "<<trajec_->vec_traject_gt_Twc_.size()<<std::endl;
+               // AddObservation(trajec_->vec_traject_gt_Twc_, add_noise );
                //std::cout<<"add observation7"<<std::endl; 
 
 
