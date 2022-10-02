@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-17 16:49:21
- * @LastEditTime: 2022-10-02 05:57:02
+ * @LastEditTime: 2022-10-02 11:04:15
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/src/landmark/MapLine.hpp
@@ -126,10 +126,10 @@ namespace simulator
                    Eigen::Matrix4d Tcw = Twc.inverse();
                    Eigen::Matrix3d Rcw = Tcw.block(0,0,3,3);
                    //Eigen::Vector3d tcw = Tcw.block(0,3,3,1);
-                   Eigen::Matrix<double,3,2> tcw;
+                   Eigen::Matrix<double,3,2> tcw(Eigen::Matrix<double,3,2>::Zero());
                    tcw.block(0,0,3,1) = Tcw.block(0,3,3,1);
                    tcw.block(0,1,3,1) = Tcw.block(0,3,3,1);
-
+                    
                    Eigen::Matrix<double, 3,2> ob;
  
                    // in the camera coordinate
@@ -139,8 +139,8 @@ namespace simulator
                    if(ob(2,0) < 0) continue; // backside of the camera
                    if(ob(2,1) < 0) continue; //
 
-                   ob.block(0,0,3,1) = ob.block(0,0,3,1) / ob(2,0); // 
-                   ob.block(0,1,3,1) = ob.block(0,1,3,1) / ob(2,1); //      
+                //    ob.block(0,0,3,1) = ob.block(0,0,3,1) / ob(2,0); // 
+                //    ob.block(0,1,3,1) = ob.block(0,1,3,1) / ob(2,1); //      
 
                    // normalized image center 
                    Eigen::Vector3d center(0,0,1);

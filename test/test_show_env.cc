@@ -1,7 +1,7 @@
 /*
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-22 16:10:56
- * @LastEditTime: 2022-10-02 04:49:46
+ * @LastEditTime: 2022-10-02 09:44:10
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description:
  * @FilePath: /venom/test/test_show_env.cc
@@ -27,7 +27,7 @@ int main(int argc, char **argv)
     //--> parameters
     int frame_num = 100;
     double distance = 5.0; // distance between wall and the trajectory center
-    bool add_noise_to_meas = true;
+    bool add_noise_to_meas = false;
 
     //--> keyframe generation
     // generate a circular trajectory with 100 keyframes

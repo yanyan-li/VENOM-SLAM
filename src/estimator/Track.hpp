@@ -16,7 +16,8 @@
  */
 
 #include <algorithm>
-
+#include <opencv2/core/core.hpp>
+#include <opencv2/core/eigen.hpp>
 #include "Trajectory.hpp"
 #include "../landmark/MapVenom.hpp"
 #include "../landmark/MapLine.hpp"
@@ -65,8 +66,8 @@ namespace simulator
                 {
                     int ml_id = robot_traject_->obs_line_[frame_id][observ_ml_i].first;
                     // detected vanishing direction (maplines)
-                    Eigen::Matrix<double, 3, 2> ml_pos = robot_traject_->obs_line_[frame_id][observ_ml_i].second;
-                    Eigen::Vector3d vd = (ml_pos.block(0, 0, 3, 1) - ml_pos.block(0, 1, 3, 1)).normalized();
+                    Eigen::Matrix<double, 3, 2> ml_pos_cam = robot_traject_->obs_line_[frame_id][observ_ml_i].second;
+                    Eigen::Vector3d vd = (ml_pos_cam.block(0, 0, 3, 1) - ml_pos_cam.block(0, 1, 3, 1)).normalized();
                     // the type of vanishing direction:   For association
                     MapLine *ptr_mp_i = vec_ptr_mls_[ml_id];
                     int vd_type = ptr_mp_i->vanishing_direction_type_;
@@ -170,7 +171,7 @@ namespace simulator
                     R_cm(1, 1) = venom_axis[1](1, 0);
                     R_cm(2, 1) = venom_axis[1](2, 0);
                     // cross: axis_0 x axis_1
-                    Eigen::Vector3d z_x = venom_axis[0].cross(venom_axis[1]);
+                    Eigen::Vector3d z_x = (venom_axis[0].cross(venom_axis[1])).normalized();
                     R_cm(0, 2) = z_x(0, 0);
                     R_cm(1, 2) = z_x(1, 0);
                     R_cm(2, 2) = z_x(2, 0);
@@ -181,7 +182,7 @@ namespace simulator
                     R_cm(1, 2) = venom_axis[2](1, 0);
                     R_cm(2, 2) = venom_axis[2](2, 0);
                     // cross: axis_0 x axis_1
-                    Eigen::Vector3d z_x = venom_axis[0].cross(venom_axis[2]);
+                    Eigen::Vector3d z_x = (venom_axis[0].cross(venom_axis[2])).normalized();
                     R_cm(0, 1) = z_x(0, 0);
                     R_cm(1, 1) = z_x(1, 0);
                     R_cm(2, 1) = z_x(2, 0);
@@ -205,12 +206,18 @@ namespace simulator
                 R_cm(1, 2) = venom_axis[2](1, 0);
                 R_cm(2, 2) = venom_axis[2](2, 0);
                 // cross: axis_0 x axis_1
-                Eigen::Vector3d z_x = venom_axis[1].cross(venom_axis[2]);
+                Eigen::Vector3d z_x = (venom_axis[1].cross(venom_axis[2])).normalized();
                 R_cm(0, 0) = z_x(0, 0);
                 R_cm(1, 0) = z_x(1, 0);
                 R_cm(2, 0) = z_x(2, 0);
             } 
             // TODO: make it orthogonal
+            cv::SVD svd; cv::Mat U,W,VT, R_cm_ortho;
+            cv::eigen2cv(R_cm, R_cm_ortho);
+            svd.compute(R_cm_ortho,W,U,VT);
+            R_cm_ortho=U*VT;
+            cv::cv2eigen(R_cm_ortho,R_cm);
+            std::cout<<"R:"<<R_cm<<", "<<R_cm_ortho<<std::endl;
             return R_cm;
         }
    
@@ -274,8 +281,8 @@ namespace simulator
                         Eigen::Matrix3d R_3_v = robot_traject_->vec_traject_gt_Twc_[frame_id].block(0,0,3,3);
                         Eigen::Matrix3d R_4_v = robot_traject_->vec_traject_gt_Twc_[anchor_frame_id].block(0,0,3,3);
 
-                        std::cout<<"from venom1: "<<std::endl<<R_1_v.inverse()*R_2_v<<std::endl<<", from gt: "<<std::endl<<R_3_v.transpose()*R_4_v<<std::endl;
-                        std::cout<<"from venom2: "<<std::endl<<R_1_v*R_2_v.inverse()<<std::endl<<", from gt: "<<std::endl<<R_3_v.transpose()*R_4_v<<std::endl;
+                        std::cout<<"from venom1: "<<std::endl<<R_2_v*R_1_v.transpose()<<std::endl<<", from gt: "<<std::endl<<R_4_v*R_3_v.transpose()<<std::endl;
+                        std::cout<<"from venom2: "<<std::endl<<R_2_v*R_1_v.inverse()<<std::endl<<", from gt: "<<std::endl<<R_4_v*R_3_v.inverse()<<std::endl;
 
                     }
 
