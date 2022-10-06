@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-10-06 02:37:57
- * @LastEditTime: 2022-10-06 15:31:10
+ * @LastEditTime: 2022-10-06 17:34:37
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/src/visulizer/Interface.hpp
@@ -74,7 +74,7 @@ namespace simulator
             std::vector<std::vector<std::pair<int, Eigen::Matrix<double, 3, 2>>>> vec_gt_keyframe_ml;
 
         public:
-            void show()
+            void start()
             {
                 pangolin::CreateWindowAndBind(" VENOM (0.0.2) SLAM (backend) Simulator", 1024, 768);
                 // 3D Mouse handler requires depth testing to be enabled
@@ -115,7 +115,7 @@ namespace simulator
                 pangolin::Var<bool> menuShowPoint("menu.Groudtruth Point", false, true);
                 pangolin::Var<bool> menuShowLine("menu.Groudtruth Line", false, true);
 
-                pangolin::Var<bool> associate_meas("menu.Measuments and reconstruction", false, false);
+                pangolin::Var<bool> associate_meas("menu.Measuments and 3D Recon", false, false);
                 pangolin::Var<bool> menuShowPointRecon("menu.Reconstructed Point", false, true);
                 pangolin::Var<bool> menuShowLineRecon("menu.Reconstructed Line", false, true);
 
@@ -135,6 +135,7 @@ namespace simulator
                 bool line_id_change = false;
 
                 int cut_i = 0;
+                // click control
                 bool set_para_click_once = true;
                 bool set_start_means_click_once = true;
                 bool set_association_click_once = true;
@@ -188,7 +189,7 @@ namespace simulator
                         }
                     }
 
-                    //-------> build measurement relationships for each camera
+                    //-------> build 2D measurement and 3D relationships for each camera
                     if (set_association_click_once && !set_start_means_click_once) // finish start_means
                     {
                         if (associate_meas)
@@ -207,6 +208,8 @@ namespace simulator
                             set_association_click_once = false;
                         }
                     }
+
+
                     
 
                     if (set_optimization_click_here && !set_association_click_once) // finish association
@@ -278,6 +281,9 @@ namespace simulator
                         std::vector<pangolin::OpenGlMatrix> MsTrue;
                         CallTrajectoryTrue(MsTrue, Twcs_true_);
                         DrawAllTrajectory(MsTrue);
+                        
+
+
                     }
 
                     if (menuShowTrajectoryOpti)
@@ -360,6 +366,10 @@ namespace simulator
                    const auto& ob = obs.begin();
                    const int cam_id = ob->first;
                    Eigen::Vector3d point_cam = ob->second;
+                   
+                   if(point_cam(2,0)!=1)
+                    point_cam /=point_cam(2,0);
+
                    point_cam /= tri_point_inverse_depth_[i];
  
                    Eigen::Matrix3d Rwc = Twcs_true_[cam_id].block(0,0,3,3);
@@ -477,6 +487,16 @@ namespace simulator
                        Ms.push_back(M);
                    }
                }
+
+               glLineWidth(2);
+               glBegin(GL_LINES);
+               glColor3f(0.0f, 1.f, 0.f);
+               for (int i = 0; i < Twcs_true_.size() - 1; i++)
+               {
+                   glVertex3f(Twcs_true_[i](0,3), Twcs_true_[i](1,3),Twcs_true_[i](2,3));
+                   glVertex3f(Twcs_true_[i+1](0,3), Twcs_true_[i+1](1,3),Twcs_true_[i+1](2,3));
+               }
+               glEnd();
            }
  
            void DrawTrueLine()
@@ -589,10 +609,7 @@ namespace simulator
                }
 #endif
            }
-           void BuildCameraLandmark()
-           {
-
-           }  
+           
 
    };
  

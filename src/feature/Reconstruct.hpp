@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-18 03:29:37
- * @LastEditTime: 2022-09-24 17:13:42
+ * @LastEditTime: 2022-10-06 17:20:08
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/src/feature/Reconstruct.hpp
@@ -21,11 +21,16 @@ namespace simulator
            std::vector<double> tri_point_inverse_depth_;
            std::vector<Eigen::Vector3d> tri_point_xyz_;
           
-           // Reconstruct(std::vector<std::vector<std::pair< int,Eigen::Vector3d>>> point_obs_meas, ):
-           // {};
+           
+           /**
+            * @brief 
+            * 
+            * @param point_obs 
+            * @param Twcs 
+            */
            void Triangulation(std::vector<std::vector<std::pair< int,Eigen::Vector3d>>> point_obs,  std::vector<Eigen::Matrix4d> Twcs)
            {
-               
+               // observations
                for(auto &ob:point_obs)
                {
                    Eigen::Vector3d point_camera;
@@ -34,10 +39,10 @@ namespace simulator
                    Eigen::Matrix4d Twc0 = Twcs[ob[0].first];
                    for(int i=1; i<ob.size(); ++i)
                    {
-                       Eigen::Vector3d ob0 = ob[i].second.col(0);
+                       Eigen::Vector3d ob0 = ob[i].second;
                        // P = T_cs_c0 : from c0 to cs
                        Eigen::Matrix4d P = Twcs[ob[i].first].inverse()*Twc0;
-                       Eigen::Vector3d f = ob0; //.normalized();
+                       Eigen::Vector3d f = ob0.normalized(); //.normalized();
                        // std::cout<<" f "<< f<< ", "<< ob0<<std::endl;
                        A.row(index++) = f[0] * P.row(2) - f[2] * P.row(0);
                        A.row(index++) = f[1] * P.row(2) - f[2] * P.row(1);
