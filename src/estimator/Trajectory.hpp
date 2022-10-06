@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-17 15:22:39
- * @LastEditTime: 2022-10-02 03:41:40
+ * @LastEditTime: 2022-10-06 15:53:41
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: This class is to generate different types of camera poses. 
  * @FilePath: /venom/src/estimator/Trajectory.hpp
@@ -50,12 +50,12 @@ namespace simulator
             if(type==0)
             {
                 traject_type_=CYCLE;
-                std::cout<<"\033[0;35m [Venom Similator Printer] The Cycle trajectory with \033[0m"<< num_keyframe <<"\033[0;35m frames is generated.\033[0m"<< std::endl; 
+                std::cout<<"\033[0;35m [Venom Similator Printer] The Cycle trajectory with "<< num_keyframe <<" frames is generated.\033[0m"<< std::endl; 
             }
             else if(type==1)
             {
                 traject_type_=SPHERE;
-                std::cout<<"\033[0;35m [Venom Similator Printer] The Sphere trajectory with \033[0m"<< num_keyframe <<"\033[0;35m frames is generated.\033[0m"<< std::endl; 
+                std::cout<<"\033[0;35m [Venom Similator Printer] The Sphere trajectory with "<< num_keyframe <<" frames is generated.\033[0m"<< std::endl; 
             }
             else
                 return; 
@@ -83,8 +83,6 @@ namespace simulator
                 std::cout << "\033[0;35m [Venom Similator Printer] We only have the CYCLE type trajectory currently.\033[0m" << std::endl;
                 return false;
             }
-
-            std::cout<<"\033[0;35m [Venom Similator Printer] Contains "<<num_keyframe<<" frames, with "<<vec_traject_gt_Twc_.size()<<" camera poses.\033[0m"<<std::endl;
 
             return true;
         } 

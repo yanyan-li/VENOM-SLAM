@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-10-06 02:37:57
- * @LastEditTime: 2022-10-06 11:55:05
+ * @LastEditTime: 2022-10-06 15:31:10
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/src/visulizer/Interface.hpp
@@ -35,6 +35,7 @@ namespace simulator
        public:
            
            simulator::Trajectory *ptr_robot_trajectory;
+           simulator::Reconstruct recon;
 
            // all mappoints and camera pose
            std::vector<Eigen::Vector3d> points_true_;
@@ -114,11 +115,11 @@ namespace simulator
                 pangolin::Var<bool> menuShowPoint("menu.Groudtruth Point", false, true);
                 pangolin::Var<bool> menuShowLine("menu.Groudtruth Line", false, true);
 
-                pangolin::Var<bool> associate_meas("menu.Measuments Association", false, false);
+                pangolin::Var<bool> associate_meas("menu.Measuments and reconstruction", false, false);
                 pangolin::Var<bool> menuShowPointRecon("menu.Reconstructed Point", false, true);
                 pangolin::Var<bool> menuShowLineRecon("menu.Reconstructed Line", false, true);
 
-                pangolin::Var<bool> optimization("menu.optimization", false, false);
+                pangolin::Var<bool> optimization("menu.Optimization", false, false);
                 pangolin::Var<bool> menuShowTrajectoryOpti("menu.Show TrajectoryOpti", false, true);
                 pangolin::Var<bool> meanShowPointOpti("menu.Optimize Point", false, true);
 
@@ -150,6 +151,7 @@ namespace simulator
                     else
                         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
+                    //-------> set parameters via buttons
                     if (set_para_click_once)
                     {
                         if (set_env)
@@ -168,12 +170,13 @@ namespace simulator
                         }
                     }
 
+                    //-------> set parameters to those SLAM modules
                     if (set_start_means_click_once && !set_para_click_once) // finish set_para
                     {
                         if (start_env)
                         {
                             // start signal for drawing env&pose
-                            // TODO:
+                            //
                             SetSimulatorParameters();
                             SetEnvParameter(points_gt, lines_gt, ptr_robot_trajectory->vec_traject_gt_Twc_);
                             menuShowTrajectory = true;
@@ -185,12 +188,18 @@ namespace simulator
                         }
                     }
 
+                    //-------> build measurement relationships for each camera
                     if (set_association_click_once && !set_start_means_click_once) // finish start_means
                     {
                         if (associate_meas)
                         {
                             // camera-landmark association
-                            // TODO:
+                            // 
+                            
+                            recon.Triangulation(vec_meas_keyframe_mp, ptr_robot_trajectory->vec_traject_gt_Twc_);
+    
+                            SetReconstructedLandmarks(ptr_robot_trajectory->obs, recon.tri_point_inverse_depth_, recon.tri_point_xyz_ );
+
                             menuShowPointRecon = true;
                             menuShowLineRecon = true;
                             std::cout << std::endl
@@ -198,6 +207,7 @@ namespace simulator
                             set_association_click_once = false;
                         }
                     }
+                    
 
                     if (set_optimization_click_here && !set_association_click_once) // finish association
                     {
@@ -243,7 +253,7 @@ namespace simulator
                     }
 
                     if (menuShowPointRecon)
-                        DrawTriPoint();
+                        DrawReconstructedMapPoint();
 
                     if (meanShowPointOpti)
                     {
@@ -326,10 +336,23 @@ namespace simulator
                lines_true_ = maplines;
                Twcs_true_ = Twcs_gt; // ground truth pose
            }
+
+           void SetReconstructedLandmarks(std::vector<std::vector<std::pair< int,Eigen::Vector3d>>> &point_obs, std::vector<double> &tri_point_inverse_depth, std::vector<Eigen::Vector3d> &tri_point_xyz)
+           {
+             point_obs_ = point_obs;   //  normalized noisy measurement
+             tri_point_xyz_ = tri_point_xyz; // optimized 3D point
+             tri_point_inverse_depth_ = tri_point_inverse_depth; // inverse depth
+
+            //  for(int i =0; i<tri_point_xyz_.size();i++)
+            //  {
+            //     std::cout<<"1: "<<tri_point_xyz_[i]<<std::endl;
+            //     std::cout<<"2: "<<tri_point_inverse_depth_[i]<<std::endl;
+            //  }
+           }
  
            
  
-           void DrawTriPoint()
+           void DrawReconstructedMapPoint()
            {
                for(int i=0;i<point_obs_.size();++i)
                {
@@ -339,8 +362,8 @@ namespace simulator
                    Eigen::Vector3d point_cam = ob->second;
                    point_cam /= tri_point_inverse_depth_[i];
  
-                   Eigen::Matrix3d Rwc = Twcs_[cam_id].block(0,0,3,3);
-                   Eigen::Vector3d twc = Twcs_[cam_id].block(0,3,3,1);
+                   Eigen::Matrix3d Rwc = Twcs_true_[cam_id].block(0,0,3,3);
+                   Eigen::Vector3d twc = Twcs_true_[cam_id].block(0,3,3,1);
  
                    Eigen::Vector3d point_w = Rwc*point_cam+twc;
  
@@ -352,6 +375,7 @@ namespace simulator
                    glEnd();
                }
            }
+
 
            void DrawAllTrajectory(std::vector<pangolin::OpenGlMatrix>& Ms)
            {
@@ -527,7 +551,7 @@ namespace simulator
                    vec_ptr_maplines.push_back(ptr_ml);
                }
 
-#ifdef __VERBOSE__
+#ifdef __VERBOSE__OFF
                for (int j = 0, jend = ptr_robot_trajectory->vec_traject_gt_Twc_.size(); j < jend; j++)
                {
                    std::cout << "the " << j << " th camera detects " << ptr_robot_trajectory->contain_ml_cams_[j]
@@ -538,16 +562,16 @@ namespace simulator
 
            void SetMapPointParameters()
            {
-               for (int id = 0; id < 200; id++)
+               for (int id = 0; id < vert_points_; id++)
                {
                    simulator::MapPoint *ptr_mp = new simulator::MapPoint(id, ptr_robot_trajectory);
-                   if (id < 50)                                             // vertical-left
+                   if (id < 0.25*vert_points_)                                             // vertical-left
                        ptr_mp->GenerateMapPoint(distance, "vertical-left"); // left side of the wall
-                   else if (id < 100)
+                   else if (id < 0.5*vert_points_)
                        ptr_mp->GenerateMapPoint(-distance, "vertical-left"); // right side
-                   else if (id < 150)
+                   else if (id < 0.75*vert_points_)
                        ptr_mp->GenerateMapPoint(distance, "vertical-right"); // front side
-                   else if (id < 200)
+                   else if (id < vert_points_)
                        ptr_mp->GenerateMapPoint(-distance, "vertical-right"); // back side
 
                    ptr_mp->AddObservation(ptr_robot_trajectory->vec_traject_gt_Twc_, add_noise_to_meas);
@@ -557,7 +581,7 @@ namespace simulator
                    vec_meas_keyframe_mp.push_back(ptr_mp->obs);
                    vec_gt_keyframe_mp.push_back(ptr_mp->obs_gt);
                }
-#ifdef __VERBOSE__
+#ifdef __VERBOSE__OFF
                for (int j = 0, jend = ptr_robot_trajectory->vec_traject_gt_Twc_.size(); j < jend; j++)
                {
                    std::cout << "the " << j << " th camera detects " << ptr_robot_trajectory->contain_mp_cams_[j]

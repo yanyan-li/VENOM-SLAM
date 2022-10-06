@@ -25,6 +25,7 @@ namespace simulator
            // {};
            void Triangulation(std::vector<std::vector<std::pair< int,Eigen::Vector3d>>> point_obs,  std::vector<Eigen::Matrix4d> Twcs)
            {
+               
                for(auto &ob:point_obs)
                {
                    Eigen::Vector3d point_camera;
