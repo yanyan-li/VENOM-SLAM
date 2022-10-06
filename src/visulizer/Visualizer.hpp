@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-18 02:53:44
- * @LastEditTime: 2022-09-28 16:35:35
+ * @LastEditTime: 2022-10-06 06:43:19
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/src/visulizer/Visualizer.hpp
@@ -32,43 +32,7 @@ namespace simulator
            std::vector<double> tri_point_inverse_depth_;
            std::vector<Eigen::Vector3d> tri_point_xyz_;
  
-           void SetParameter(std::vector<Eigen::Vector3d> &mappoints, std::vector<Eigen::Matrix4d> &Twcs_gt,
-                               std::vector<Eigen::Matrix4d> &Twcs, std::vector<std::vector<std::pair< int,Eigen::Vector3d>>> &point_obs,
-                               std::vector<double> &tri_point_inverse_depth, std::vector<Eigen::Vector3d> &tri_point_xyz)
-           {
-               points_true_ = mappoints; // ground truth point
-               tri_point_xyz_ = tri_point_xyz; // optimized 3D point
-               point_obs_ = point_obs;   //  normalized noisy measurement
-               tri_point_inverse_depth_ = tri_point_inverse_depth; // inverse depth
- 
-               Twcs_true_ = Twcs_gt; // ground truth pose
-               Twcs_ = Twcs;         // optimized Twcs
-           }
-
-           /**
-            * @brief Set the Env Parameter object
-            * 
-            * @param mappoints 
-            * @param maplines 
-            * @param Twcs_gt 
-            * @param Twcs 
-            * @param point_obs 
-            * @param tri_point_inverse_depth 
-            * @param tri_point_xyz 
-            */
-           void SetEnvParameter(std::vector<Eigen::Vector3d> &mappoints, std::vector<Eigen::Matrix<double,3,2>> &maplines, std::vector<Eigen::Matrix4d> &Twcs_gt,
-                               std::vector<Eigen::Matrix4d> &Twcs, std::vector<std::vector<std::pair< int,Eigen::Vector3d>>> &point_obs,
-                               std::vector<double> &tri_point_inverse_depth, std::vector<Eigen::Vector3d> &tri_point_xyz)
-           {
-               points_true_ = mappoints; // ground truth point
-               lines_true_ = maplines;
-               tri_point_xyz_ = tri_point_xyz; // optimized 3D point
-               point_obs_ = point_obs;   //  normalized noisy measurement
-               tri_point_inverse_depth_ = tri_point_inverse_depth; // inverse depth
- 
-               Twcs_true_ = Twcs_gt; // ground truth pose
-               Twcs_ = Twcs;         // optimized Twcs
-           }
+           
  
            void show()
            {
@@ -427,6 +391,43 @@ namespace simulator
                glEnd();
            }
  
+           void SetParameter(std::vector<Eigen::Vector3d> &mappoints, std::vector<Eigen::Matrix4d> &Twcs_gt,
+                               std::vector<Eigen::Matrix4d> &Twcs, std::vector<std::vector<std::pair< int,Eigen::Vector3d>>> &point_obs,
+                               std::vector<double> &tri_point_inverse_depth, std::vector<Eigen::Vector3d> &tri_point_xyz)
+           {
+               points_true_ = mappoints; // ground truth point
+               tri_point_xyz_ = tri_point_xyz; // optimized 3D point
+               point_obs_ = point_obs;   //  normalized noisy measurement
+               tri_point_inverse_depth_ = tri_point_inverse_depth; // inverse depth
+ 
+               Twcs_true_ = Twcs_gt; // ground truth pose
+               Twcs_ = Twcs;         // optimized Twcs
+           }
+
+           /**
+            * @brief Set the Env Parameter object
+            * 
+            * @param mappoints 
+            * @param maplines 
+            * @param Twcs_gt 
+            * @param Twcs 
+            * @param point_obs 
+            * @param tri_point_inverse_depth 
+            * @param tri_point_xyz 
+            */
+           void SetEnvParameter(std::vector<Eigen::Vector3d> &mappoints, std::vector<Eigen::Matrix<double,3,2>> &maplines, std::vector<Eigen::Matrix4d> &Twcs_gt,
+                               std::vector<Eigen::Matrix4d> &Twcs, std::vector<std::vector<std::pair< int,Eigen::Vector3d>>> &point_obs,
+                               std::vector<double> &tri_point_inverse_depth, std::vector<Eigen::Vector3d> &tri_point_xyz)
+           {
+               points_true_ = mappoints; // ground truth point
+               lines_true_ = maplines;
+               tri_point_xyz_ = tri_point_xyz; // optimized 3D point
+               point_obs_ = point_obs;   //  normalized noisy measurement
+               tri_point_inverse_depth_ = tri_point_inverse_depth; // inverse depth
+ 
+               Twcs_true_ = Twcs_gt; // ground truth pose
+               Twcs_ = Twcs;         // optimized Twcs
+           }
    };
  
 }

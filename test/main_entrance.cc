@@ -1,10 +1,10 @@
 /*
  * @Author: yanyan-li yanyan.li.camp@gmail.com
- * @Date: 2022-09-22 16:10:56
- * @LastEditTime: 2022-10-06 04:01:45
+ * @Date: 2022-10-06 02:40:42
+ * @LastEditTime: 2022-10-06 06:43:23
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
- * @Description:
- * @FilePath: /venom/test/test_show_env.cc
+ * @Description: 
+ * @FilePath: /venom/test/main_entrance.cc
  */
 #include <iostream>
 #include <string>
@@ -13,16 +13,27 @@
 #include "src/landmark/MapLine.hpp"
 #include "src/optimizer/GlobalBundleAdjustment.hpp"
 #include "src/feature/Reconstruct.hpp"
-#include "src/visulizer/Visualizer.hpp"
+#include "src/visulizer/Interface.hpp"
 #include "src/estimator/Track.hpp"
 
 int main(int argc, char **argv)
 {
     if (argc != 1)
     {
-        std::cout << "usage: ./show_estimator_env " << std::endl;
+        std::cout << "usage: ./main_entrance " << std::endl;
         return -1;
     }
+
+    std::cout << std::endl << 
+        "\033[0;32m Venor SLAM Simulator Software Copyright (C) 2022 Yanyan Li, Technical University of Munich." << std::endl <<
+        "This is a free software that is used to learn, teach, and test SLAM strategies." << std::endl <<
+        "And you are welcome to contribute it and redistribute it under certain conditions. See LICENSE.txt. \033[0m" << std::endl << std::endl;
+
+    // interface
+    simulator::Interface viewer;
+    viewer.show();
+
+    
 
     //--> parameters
     int frame_num = 100;
@@ -125,12 +136,7 @@ int main(int argc, char **argv)
     std::vector<Eigen::Matrix4d> vec_traject_Twc_opti;
     // simulator::pointLocalBundleAdjustment::optimize(recon.tri_point_xyz_, vec_meas_keyframe_mp, robot_trajectory.vec_traject_gt_Twc_, vec_traject_Twc_opti);
 
-    //  visualization
-    simulator::Visualizer viewer;
-    viewer.SetEnvParameter(points_gt, lines_gt, robot_trajectory->vec_traject_gt_Twc_,
-                           vec_traject_Twc_opti, vec_meas_keyframe_mp,
-                           recon.tri_point_inverse_depth_, recon.tri_point_xyz_);
-    viewer.show();
+   
 
     //
     return 0;

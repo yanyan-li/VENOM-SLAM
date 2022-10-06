@@ -1,14 +1,6 @@
 /***
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-25 05:34:55
- * @LastEditTime: 2022-10-01 15:25:59
- * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
- * @Description:
- * @FilePath: /venom/src/estimator/Track.hpp
- */
-/***
- * @Author: yanyan-li yanyan.li.camp@gmail.com
- * @Date: 2022-09-25 05:34:55
  * @LastEditTime: 2022-09-25 05:47:30
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: Pose estimation based on measurements.
