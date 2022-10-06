@@ -37,11 +37,28 @@ Red point are ground truth **landmarks**, while reconstructed **mappoints** gene
 
 Trajectory: Cycle, Sphere and so on.
 
-##### 2.0 interface
+##### 2.0 Interface of the system
 
 To help users build environments more conveniently, the following software interface is made to design your synthetic environment in a super simple way.
 
-![interface](images/interface.png)
+<div align ="center">
+	<img src="images/home.gif">
+</div>
+
+You could select the numbers of camera frames, point and line landmarks in the environment via several swipe and click actions as shown in this figure. 
+
+The commands you need are:
+
+```
+cd venom
+mkdir build
+cd build 
+cmake ..
+make
+../bin/main_entrance 
+```
+
+
 
 ##### 2.1 Show Env
 
