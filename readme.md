@@ -14,9 +14,10 @@
   <a href="https://">
     <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg">
   </a>
-    <a href="https://github.com/yanyan-li/VENOM/blob/master/version.md"><img src="https://img.shields.io/badge/Version-0.01-green.svg"></a>
+    <a href="https://github.com/yanyan-li/VENOM/blob/master/version.md"><img src="https://img.shields.io/badge/Version-0.02-green.svg"></a>
 </p>
 
+**Authors:** Yanyan Li, Liang Zhao and Federico Tombari
 
 A simulator is a super important tool for testing SLAM modules, especially for newly proposed ideas, as it is easy to check the validity of your ideas in a controlled environment.
 
@@ -24,6 +25,7 @@ A simulator is a super important tool for testing SLAM modules, especially for n
 
 Clone the repo, and it is easy to build your own image and container based on the Dockerfile proposed in the **Docker** folder.
 The proposed [docker environment](Docker/readme.md) contains the following  libs.
+
 #### Installed environment
 Pangolin, OpenCV, Eigen and minor libs have been installed in already.  
 
