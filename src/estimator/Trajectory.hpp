@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-17 15:22:39
- * @LastEditTime: 2022-10-06 15:53:41
+ * @LastEditTime: 2022-10-07 17:17:22
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: This class is to generate different types of camera poses. 
  * @FilePath: /venom/src/estimator/Trajectory.hpp
@@ -44,7 +44,15 @@ namespace simulator
             obs = std::vector< std::vector<std::pair<int /* */, Eigen::Vector3d>>>(num_keyframe, std::vector<std::pair<int /* */, Eigen::Vector3d>>());//.reserve(num_keyframe);
             obs_line_ = std::vector< std::vector<std::pair<int /* */, Eigen::Matrix<double,3,2>>>>(num_keyframe, std::vector<std::pair<int /* */, Eigen::Matrix<double,3,2>>>());//.reserve(num_keyframe);
             obs_mw_ = std::vector< std::vector<std::pair<int /* */, Eigen::Matrix3d>>>(num_keyframe, std::vector<std::pair<int /* */, Eigen::Matrix3d>>());//.reserve(num_keyframe);
+            
+            double fx = 535.4; double cx = 320.1;
+            double fy = 539.2; double cy = 247.6;
+            camera_intrinsic_ << fx, 0, cx,
+                                 0, fy, cy,
+                                 0 , 0, 1; 
+            image_rows_ = 480; image_cols_= 640;
 
+            // std::cout<<"camera_intrinsic: "<<camera_intrinsic_<<std::endl;                     
 
             //vec_traject_gt_Twc_ = std::vector<Eigen::Matrix4d>(2*num_keyframe, Eigen::Matrix4d::Zero()) ;
             if(type==0)
@@ -226,6 +234,10 @@ namespace simulator
         // Eigen::Matrix4d Twc_;
         // Eigen::Matrix3d Rwb_;
         // Eigen::Vector3d twb_;
+        
+        Eigen::Matrix3d camera_intrinsic_;
+        int image_cols_;
+        int image_rows_;
         std::vector<Eigen::Matrix4d> vec_traject_gt_Twc_;
 
         // the i th cam, detects the id th mappoint, with the 3D coordinate

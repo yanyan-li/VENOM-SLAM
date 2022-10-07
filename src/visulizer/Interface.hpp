@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-10-06 02:37:57
- * @LastEditTime: 2022-10-06 17:34:37
+ * @LastEditTime: 2022-10-07 16:49:06
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/src/visulizer/Interface.hpp
@@ -154,7 +154,8 @@ namespace simulator
 
                     //-------> set parameters via buttons
                     if (set_para_click_once)
-                    {
+                    { 
+                        // 1pixel , if <2 pixel
                         if (set_env)
                         {
                             set_traject_num = traject_num;
@@ -488,6 +489,7 @@ namespace simulator
                    }
                }
 
+               // add trajectory
                glLineWidth(2);
                glBegin(GL_LINES);
                glColor3f(0.0f, 1.f, 0.f);

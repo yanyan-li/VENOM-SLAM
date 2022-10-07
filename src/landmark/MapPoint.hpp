@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-17 16:48:58
- * @LastEditTime: 2022-10-06 17:00:09
+ * @LastEditTime: 2022-10-07 17:40:39
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/src/landmark/MapPoint.hpp
@@ -99,8 +99,24 @@ namespace simulator
                    ob = Rcw * pos_world_ + tcw;
  
                    if(ob(2) < 0) continue; // backside of the camera
-                   ob = ob / ob(2); // ob: [x, y, 1]
-          
+
+                   ob = ob / ob(2); // ob: [x, y, 1] 
+                   
+                   //  
+                   double u = ob(0)*trajec_->camera_intrinsic_(0,0) + trajec_->camera_intrinsic_(0,2);
+                   double v = ob(1)*trajec_->camera_intrinsic_(1,1) + trajec_->camera_intrinsic_(1,2);
+
+                   // std::cout<<"u and v: "<< u <<", "<< v <<std::endl; 
+                   if(!IsInFrame(u,v))
+                   {
+                    std::cout<<"u and v: "<< u <<", "<< v <<std::endl; 
+                    continue;
+                   } 
+
+                   // TODO:  add noise
+
+                   // YanyanTODO: CHECK observation     
+
                    // 光线 和 图像中心 之间的夹角。这个夹角太大，我们就认为观测不到了
                    Eigen::Vector3d center(0,0,1);
                    Eigen::Vector3d ob_cam = ob;
@@ -135,6 +151,16 @@ namespace simulator
                std::cout<<"\033[0;31m [Venom Similator Printer] The global position of mappoint is  \033[0m"<<std::endl
                         <<pos_world_<<std::endl<< "which is detected by "<<observed<<"cameras"<<std::endl;
  
+           }
+
+           bool IsInFrame(double &u, double &v)
+           {
+            if(u<0 || u> trajec_->image_cols_)
+                return false;
+            if(v<0 || v>trajec_->image_rows_)
+                return false;
+
+            return true;        
            }
    };
 }
