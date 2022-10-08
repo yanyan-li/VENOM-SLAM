@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-17 16:48:58
- * @LastEditTime: 2022-10-06 17:00:09
+ * @LastEditTime: 2022-10-08 18:50:21
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/src/landmark/MapPoint.hpp
@@ -69,7 +69,7 @@ namespace simulator
  
                // after generating the mappoint
                // add observatin  
-               bool add_noise = true;
+               bool add_noise = false;
                //std::cout<<"keuframe size: "<<trajec_->vec_traject_gt_Twc_.size()<<std::endl;
                // AddObservation(trajec_->vec_traject_gt_Twc_, add_noise );
                //std::cout<<"add observation7"<<std::endl; 
@@ -112,7 +112,7 @@ namespace simulator
                    // i：camera id,  value：number of detected point
                    // this->num_id_: mappoint id
                    // ob_cam: measurement in this camera coordinate 
-                   trajec_->SetKeyFrameDetects(i, this->num_id_, ob_cam);
+                   trajec_->SetKeyFrameDetects(i, this->num_id_, ob);
                    //std::cout<<"the "<<i<<" th camera. "<<trajec_.contain_mp_cams_[i]<<std::endl;
                    observed++;
                   

@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-10-06 02:37:57
- * @LastEditTime: 2022-10-06 17:34:37
+ * @LastEditTime: 2022-10-08 18:42:20
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/src/visulizer/Interface.hpp
@@ -56,7 +56,7 @@ namespace simulator
             int vert_points_;
             int horiz_points_; 
             double distance = 5.0; // distance between wall and the trajectory center
-            bool add_noise_to_meas = false;
+            bool add_noise_to_meas = true;
 
             //--> keyframe generation
             // generate a circular trajectory with 100 keyframes
@@ -360,28 +360,25 @@ namespace simulator
  
            void DrawReconstructedMapPoint()
            {
-               for(int i=0;i<point_obs_.size();++i)
+               for(int i=0;i<tri_point_xyz_.size();++i)
                {
-                   const auto& obs = point_obs_[i];
-                   const auto& ob = obs.begin();
-                   const int cam_id = ob->first;
-                   Eigen::Vector3d point_cam = ob->second;
-                   
-                   if(point_cam(2,0)!=1)
-                    point_cam /=point_cam(2,0);
-
-                   point_cam /= tri_point_inverse_depth_[i];
- 
-                   Eigen::Matrix3d Rwc = Twcs_true_[cam_id].block(0,0,3,3);
-                   Eigen::Vector3d twc = Twcs_true_[cam_id].block(0,3,3,1);
- 
-                   Eigen::Vector3d point_w = Rwc*point_cam+twc;
- 
- 
+                   //    const auto& obs = point_obs_[i];
+                   //    const auto& ob = obs.begin();
+                   //    const int cam_id = ob->first;
+                   //   Eigen::Vector3d point_cam = ob->second;
+                   //    if(point_cam(2,0)!=1)
+                   //     point_cam /=point_cam(2,0);
+                   //   point_cam /= tri_point_inverse_depth_[i];
+                   //    Eigen::Matrix3d Rwc = Twcs_true_[cam_id].block(0,0,3,3);
+                   //    Eigen::Vector3d twc = Twcs_true_[cam_id].block(0,3,3,1);
+                   //    Eigen::Vector3d point_w = Rwc*point_cam+twc;
+                   if(tri_point_xyz_[i].isZero())
+                    continue;
                    glPointSize(5);
                    glBegin(GL_POINTS);
-                   glColor3f(1.0,1.0,0.0);
-                   glVertex3d( point_w[0], point_w[1], point_w[2]);
+                   glColor3f(1.0, 1.0, 0.0);
+                   // glVertex3d( point_cam[0], point_cam[1], point_cam[2]);
+                   glVertex3d(tri_point_xyz_[i][0], tri_point_xyz_[i][1], tri_point_xyz_[i][2]);
                    glEnd();
                }
            }
