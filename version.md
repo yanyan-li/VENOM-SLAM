@@ -1,6 +1,6 @@
 
 
-#### Introduction of Venom-0.01
+#### Introduction of Venom-0.0.2
 
 ```
 Architecture:
@@ -25,3 +25,4 @@ Architecture:
         |-->g2o
     Docker              ## docker environments
 ```
+
