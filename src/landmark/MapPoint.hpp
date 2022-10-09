@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-17 16:48:58
- * @LastEditTime: 2022-10-08 18:50:21
+ * @LastEditTime: 2022-10-08 19:06:03
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/src/landmark/MapPoint.hpp
@@ -99,7 +99,7 @@ namespace simulator
                    ob = Rcw * pos_world_ + tcw;
  
                    if(ob(2) < 0) continue; // backside of the camera
-                   ob = ob / ob(2); // ob: [x, y, 1]
+                   //ob = ob / ob(2); // ob: [x, y, 1]
           
                    // 光线 和 图像中心 之间的夹角。这个夹角太大，我们就认为观测不到了
                    Eigen::Vector3d center(0,0,1);
