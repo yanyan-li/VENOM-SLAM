@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-17 15:22:39
- * @LastEditTime: 2022-10-08 18:49:50
+ * @LastEditTime: 2022-10-10 16:31:17
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: This class is to generate different types of camera poses. 
  * @FilePath: /venom/src/estimator/Trajectory.hpp
@@ -232,7 +232,7 @@ namespace simulator
         std::vector< std::vector<std::pair<int /* */, Eigen::Vector3d>>> obs;
         std::vector< std::vector<std::pair<int, Eigen::Vector3d>>> obs_gt; 
 
-        // the i th cam, detects the id th mappoint, with the 3D coordinate
+        // the i th cam, detects the id th mapline, with the 3D coordinate
         std::vector< std::vector<std::pair<int /* */, Eigen::Matrix<double,3,2>>>> obs_line_;
         std::vector< std::vector<std::pair<int, Eigen::Matrix<double,3,2>>>> obs_line_gt_;
 

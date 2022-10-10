@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-10-06 02:37:57
- * @LastEditTime: 2022-10-08 18:42:20
+ * @LastEditTime: 2022-10-10 17:02:28
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/src/visulizer/Interface.hpp
@@ -35,6 +35,8 @@ namespace simulator
        public:
            
            simulator::Trajectory *ptr_robot_trajectory;
+           simulator::Track*  ptr_venom_track;
+
            simulator::Reconstruct recon;
 
            // all mappoints and camera pose
@@ -97,10 +99,10 @@ namespace simulator
 
                 pangolin::Var<int> traject_num("menu.KeyFrame Number", 100, 50, 200);
                 pangolin::Var<int> traject_type("menu.Trajectory Type", 0, 0, 4);
-                pangolin::Var<int> vert_points("menu.Vertical Points", 20, 4, 40);
+                pangolin::Var<int> vert_points("menu.Vertical Points", 20, 4, 100);
                 pangolin::Var<int> horiz_points("menu.Horizontal Points", 10, 0, 20);
-                pangolin::Var<int> vert_lines("menu.Vertical Lines", 20, 4, 40);
-                pangolin::Var<int> horiz_lines("menu.Horizontal Lines", 10, 0, 20);
+                pangolin::Var<int> vert_lines("menu.Vertical Lines", 20, 4, 50);
+                pangolin::Var<int> horiz_lines("menu.Horizontal Lines", 10, 0, 50);
 
                 pangolin::Var<bool> set_env("menu.Build&Fix Environment", false, false);
                 pangolin::Var<int> set_traject_num("menu.Num of KeyFrames:", 0);
@@ -119,6 +121,11 @@ namespace simulator
                 pangolin::Var<bool> menuShowPointRecon("menu.Reconstructed Point", false, true);
                 pangolin::Var<bool> menuShowLineRecon("menu.Reconstructed Line", false, true);
 
+                pangolin::Var<bool> rotation_esti("menu.Rot Esti based on E-Graph",false, false );
+                pangolin::Var<bool> menuShowEGraph("menu.E-Graph Association", false, true);
+                pangolin::Var<bool> menuShowRefinedCamera("menu.Rotation Estimation", false, true);
+
+                
                 pangolin::Var<bool> optimization("menu.Optimization", false, false);
                 pangolin::Var<bool> menuShowTrajectoryOpti("menu.Show TrajectoryOpti", false, true);
                 pangolin::Var<bool> meanShowPointOpti("menu.Optimize Point", false, true);
@@ -140,6 +147,7 @@ namespace simulator
                 bool set_start_means_click_once = true;
                 bool set_association_click_once = true;
                 bool set_optimization_click_here = true;
+                bool set_egraph_associate_click_here = true;
 
                 while (!pangolin::ShouldQuit())
                 {
@@ -210,7 +218,23 @@ namespace simulator
                     }
 
 
-                    
+                    //-------> Rotation estimation based on E-Graph
+                    if(set_egraph_associate_click_here &&!set_association_click_once)
+                    {
+                        if(rotation_esti)
+                        {
+                            ptr_venom_track->VenomFrameDetection();
+                            menuShowEGraph = true; 
+                            menuShowRefinedCamera = true;
+                            std::cout << std::endl
+                                      << "\033[0;35m [Venom Similator Printer] Extensibility Graph Generation. \033[0m" << std::endl;
+                            
+                            set_egraph_associate_click_here = false;
+
+                        }
+                    }
+
+
 
                     if (set_optimization_click_here && !set_association_click_once) // finish association
                     {
@@ -257,6 +281,12 @@ namespace simulator
 
                     if (menuShowPointRecon)
                         DrawReconstructedMapPoint();
+
+                    if(menuShowEGraph)
+                        BuildExtensibilityGraph();
+
+
+
 
                     if (meanShowPointOpti)
                     {
@@ -381,6 +411,11 @@ namespace simulator
                    glVertex3d(tri_point_xyz_[i][0], tri_point_xyz_[i][1], tri_point_xyz_[i][2]);
                    glEnd();
                }
+           }
+
+           void BuildExtensibilityGraph()
+           {
+
            }
 
 
@@ -516,6 +551,7 @@ namespace simulator
            {
             //set cameras
             ptr_robot_trajectory = new simulator::Trajectory(traject_type_, frame_num_);
+            
             if(traject_type_==0)
                 ptr_robot_trajectory->GenerateTrajectory(simulator::Trajectory::CYCLE, frame_num_);
             else if(traject_type_==1)
@@ -524,7 +560,10 @@ namespace simulator
             //set mappoins
             //set maplines
             SetMapPointParameters(); 
-            SetMapLineParameters();
+            SetMapLineParameters();  
+
+            //after preparing line landmarks, we then detect venom relationships
+            ptr_venom_track = new simulator::Track(ptr_robot_trajectory, vec_ptr_maplines);
 
            }
 
@@ -568,7 +607,7 @@ namespace simulator
                    vec_ptr_maplines.push_back(ptr_ml);
                }
 
-#ifdef __VERBOSE__OFF
+#ifdef __VERBOSE__//OFF
                for (int j = 0, jend = ptr_robot_trajectory->vec_traject_gt_Twc_.size(); j < jend; j++)
                {
                    std::cout << "the " << j << " th camera detects " << ptr_robot_trajectory->contain_ml_cams_[j]

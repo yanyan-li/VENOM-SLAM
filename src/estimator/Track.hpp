@@ -54,14 +54,18 @@ namespace simulator
                 venom_axis = std::vector<Eigen::Vector3d>(3, Eigen::Vector3d::Zero());
                 std::pair<int /*venom_id*/, Eigen::Matrix3d> r_venom_frame;
 
+                //--> loop for detecting the number of vanishing directions
                 for (int observ_ml_i = 0, observ_ml_end = robot_traject_->obs_line_[frame_id].size(); observ_ml_i < observ_ml_end; observ_ml_i++)
                 {
                     int ml_id = robot_traject_->obs_line_[frame_id][observ_ml_i].first;
+                    
                     // detected vanishing direction (maplines)
                     Eigen::Matrix<double, 3, 2> ml_pos_cam = robot_traject_->obs_line_[frame_id][observ_ml_i].second;
                     Eigen::Vector3d vd = (ml_pos_cam.block(0, 0, 3, 1) - ml_pos_cam.block(0, 1, 3, 1)).normalized();
+                    
                     // the type of vanishing direction:   For association
                     MapLine *ptr_mp_i = vec_ptr_mls_[ml_id];
+
                     int vd_type = ptr_mp_i->vanishing_direction_type_;
 
 #ifdef __VERBOSE__OFF //(remove "OFF", if you want to print )
@@ -73,15 +77,16 @@ namespace simulator
                     if (!set_vd_type.count(vd_type))
                     {
                         vec_type_direction.push_back(std::make_pair(vd_type, vd)); // [vd_type] = vd;
+                        std::cout<<"vd: "<<vd<<std::endl;
                         // vec_vd.push_back(vd);
-                        // std::cout<<"vec_vd: "<<vd<<std::endl;
                         set_vd_type.insert(vd_type);
-                        // std::cout<<"vec_vd_type:"<<vd_type<<std::endl;
                     }
                 }
 
+                //--> more than two unparallel directions
                 if (set_vd_type.size() >= 2) // Vanom is detected
                 {
+                    //--> detected  
                     int venom_type = VenomFrameGeneration(vec_type_direction, venom_axis);
                     Eigen::Matrix3d rotation_frame_venom_cam_id = RotationCamera2Venom(venom_type, venom_axis);
 #ifdef __VERBOSE__                    
@@ -114,26 +119,36 @@ namespace simulator
                 }
                 else if (mit->first == 1)
                 {
-                    venom_axis[1] = mit->second;
+                    
                     if (venom_type == 0)
                     {
-                        venom_type = 1;  // means: first-0, second-1
+                        venom_type = 1;  // means: first-0, second-1 
+                        venom_axis[1] = (mit->second - mit->second.dot(venom_axis[0])/(venom_axis[0].dot(venom_axis[0])) * venom_axis[0]).normalized() ;
+                        
+                        assert(venom_axis[1].dot(venom_axis[0])<1e-6); 
+                        
                     }
                     else if (venom_type == -1) // means: first-1, future-second-2
                     {
                         venom_type = 4;
+                        venom_axis[1] = mit->second;
                     }
                 }
                 else if (mit->first == 2)
                 {
-                    venom_axis[2] = mit->second;
+                    //venom_axis[2] = mit->second;
                     if(venom_type == 0) // means: first-0, second-2
                     {
                         venom_type = 2;
+                        venom_axis[2] = (mit->second - mit->second.dot(venom_axis[0])/(venom_axis[0].dot(venom_axis[0])) * venom_axis[0]).normalized() ;
+                        assert(venom_axis[2].dot(venom_axis[0])<1e-6);  
                     }
                     else if(venom_type == 1) //means: first-0, second-1, third-2
                     {
                         venom_type = 3;
+                        venom_axis[2] = (mit->second - mit->second.dot(venom_axis[0])/(venom_axis[0].dot(venom_axis[0])) * venom_axis[0] -
+                                        mit->second.dot(venom_axis[1])/(venom_axis[1].dot(venom_axis[1])) * venom_axis[1]).normalized() ;
+                        assert(venom_axis[2].dot(venom_axis[0])<1e-6 && venom_axis[2].dot(venom_axis[1])<1e-6 ) ; 
                     }
                     else
                     {
