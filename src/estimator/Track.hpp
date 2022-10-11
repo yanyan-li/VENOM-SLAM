@@ -77,7 +77,7 @@ namespace simulator
                     if (!set_vd_type.count(vd_type))
                     {
                         vec_type_direction.push_back(std::make_pair(vd_type, vd)); // [vd_type] = vd;
-                        std::cout<<"vd: "<<vd<<std::endl;
+                        // std::cout<<"vd: "<<vd<<std::endl;
                         // vec_vd.push_back(vd);
                         set_vd_type.insert(vd_type);
                     }
@@ -88,6 +88,7 @@ namespace simulator
                 {
                     //--> detected  
                     int venom_type = VenomFrameGeneration(vec_type_direction, venom_axis);
+                    // Rcm
                     Eigen::Matrix3d rotation_frame_venom_cam_id = RotationCamera2Venom(venom_type, venom_axis);
 #ifdef __VERBOSE__                    
                     std::cout <<"\033[0;35m [Venom Simulator Printer]: venom is detected. " << std::endl
@@ -100,6 +101,13 @@ namespace simulator
             }
         }
 
+        /**
+         * @brief 
+         * 
+         * @param type_detections   used for association by setting a symbol. Same symbol means that they detect the same venom.
+         * @param venom_axis : Rcm  from venom to camera
+         * @return int 
+         */
         int VenomFrameGeneration(std::vector<std::pair<int, Eigen::Vector3d>> &type_detections, std::vector<Eigen::Vector3d> &venom_axis)
         {
             // type 0: 0 ..
@@ -219,12 +227,12 @@ namespace simulator
                 R_cm(2, 0) = z_x(2, 0);
             } 
             // TODO: make it orthogonal
-            cv::SVD svd; cv::Mat U,W,VT, R_cm_ortho;
-            cv::eigen2cv(R_cm, R_cm_ortho);
-            svd.compute(R_cm_ortho,W,U,VT);
-            R_cm_ortho=U*VT;
-            cv::cv2eigen(R_cm_ortho,R_cm);
-            std::cout<<"R:"<<R_cm<<", "<<R_cm_ortho<<std::endl;
+            // cv::SVD svd; cv::Mat U,W,VT, R_cm_ortho;
+            // cv::eigen2cv(R_cm, R_cm_ortho);
+            // svd.compute(R_cm_ortho,W,U,VT);
+            // R_cm_ortho=U*VT;
+            // cv::cv2eigen(R_cm_ortho,R_cm);
+            // std::cout<<"R:"<<R_cm<<", "<<R_cm_ortho<<std::endl;
             return R_cm;
         }
    
@@ -288,8 +296,8 @@ namespace simulator
                         Eigen::Matrix3d R_3_v = robot_traject_->vec_traject_gt_Twc_[frame_id].block(0,0,3,3);
                         Eigen::Matrix3d R_4_v = robot_traject_->vec_traject_gt_Twc_[anchor_frame_id].block(0,0,3,3);
 
-                        std::cout<<"from venom1: "<<std::endl<<R_2_v*R_1_v.transpose()<<std::endl<<", from gt: "<<std::endl<<R_4_v*R_3_v.transpose()<<std::endl;
-                        std::cout<<"from venom2: "<<std::endl<<R_2_v*R_1_v.inverse()<<std::endl<<", from gt: "<<std::endl<<R_4_v*R_3_v.inverse()<<std::endl;
+                        //std::cout<<"from venom1: "<<std::endl<<R_2_v*R_1_v.transpose()<<std::endl<<", from gt: "<<std::endl<<R_4_v*R_3_v.transpose()<<std::endl;
+                        //std::cout<<"from venom2: "<<std::endl<<R_2_v*R_1_v.inverse()<<std::endl<<", from gt: "<<std::endl<<R_4_v*R_3_v.inverse()<<std::endl;
 
                     }
 

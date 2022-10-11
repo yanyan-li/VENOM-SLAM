@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-10-06 02:37:57
- * @LastEditTime: 2022-10-10 17:02:28
+ * @LastEditTime: 2022-10-11 16:19:35
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/src/visulizer/Interface.hpp
@@ -122,7 +122,7 @@ namespace simulator
                 pangolin::Var<bool> menuShowLineRecon("menu.Reconstructed Line", false, true);
 
                 pangolin::Var<bool> rotation_esti("menu.Rot Esti based on E-Graph",false, false );
-                pangolin::Var<bool> menuShowEGraph("menu.E-Graph Association", false, true);
+                pangolin::Var<bool> menuShowEGraph("menu.Anchor Frames in E-Graph", false, true);
                 pangolin::Var<bool> menuShowRefinedCamera("menu.Rotation Estimation", false, true);
 
                 
@@ -224,6 +224,7 @@ namespace simulator
                         if(rotation_esti)
                         {
                             ptr_venom_track->VenomFrameDetection();
+                            //ptr_venom_track->VenomAssociation();
                             menuShowEGraph = true; 
                             menuShowRefinedCamera = true;
                             std::cout << std::endl
@@ -283,7 +284,11 @@ namespace simulator
                         DrawReconstructedMapPoint();
 
                     if(menuShowEGraph)
-                        BuildExtensibilityGraph();
+                    {
+                        std::vector<pangolin::OpenGlMatrix> MsTrue;
+                        CallTrajectoryTrue(MsTrue, Twcs_true_);
+                        ShowVenomAnchors(MsTrue);
+                    }
 
 
 
@@ -311,9 +316,6 @@ namespace simulator
                         std::vector<pangolin::OpenGlMatrix> MsTrue;
                         CallTrajectoryTrue(MsTrue, Twcs_true_);
                         DrawAllTrajectory(MsTrue);
-                        
-
-
                     }
 
                     if (menuShowTrajectoryOpti)
@@ -413,9 +415,49 @@ namespace simulator
                }
            }
 
-           void BuildExtensibilityGraph()
+           /**
+            * @brief detect and show venom anchors 
+            * 
+            * @param Ms 
+            */
+           void ShowVenomAnchors(std::vector<pangolin::OpenGlMatrix>& Ms)
            {
+               std::vector<std::pair<int, Eigen::Matrix3d>> vec_venom_anchors;
+               std::vector<int> vec_anchor_id;
+               std::set<int> set_venom_type;
+               // anchors
+               for (int i = 0; i < ptr_robot_trajectory->obs_mw_.size(); i++)
+               {
+                   // the i th frame detects a venom
+                   if (ptr_robot_trajectory->obs_mw_[i].size() > 0)
+                   {
+                       int venom_id = ptr_robot_trajectory->obs_mw_[i][0].first;
+                       Eigen::Matrix3d rot_cam_venom = ptr_robot_trajectory->obs_mw_[i][0].second;
 
+                       if (!set_venom_type.count(venom_id))
+                       {
+                           vec_venom_anchors.push_back(std::make_pair(venom_id, rot_cam_venom)); // [vd_type] = vd;
+                           // std::cout << "rot_cam_venom: " << rot_cam_venom << std::endl;
+                           // vec_vd.push_back(vd);
+                           set_venom_type.insert(venom_id);
+                           vec_anchor_id.push_back(i);
+                       }
+                   }
+               }
+
+               for (int i = 0; i < Ms.size(); i++)
+               {
+                   for (int j = 0; j < vec_anchor_id.size(); j++)
+                   {
+                       if (i == vec_anchor_id[j])
+                       {
+                           GLfloat r = 0.0f;
+                           GLfloat g = 0.0f;
+                           GLfloat b = 1.0f;
+                           DrawSigCam(Ms[i], r, g, b);
+                       }
+                   }
+               }
            }
 
 

@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-17 15:22:39
- * @LastEditTime: 2022-10-10 16:31:17
+ * @LastEditTime: 2022-10-11 15:50:04
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: This class is to generate different types of camera poses. 
  * @FilePath: /venom/src/estimator/Trajectory.hpp
@@ -247,7 +247,7 @@ namespace simulator
         // key: frame_id; value: primitive_nums
         std::map<int, int> contain_mp_cams_;
         std::map<int, int> contain_ml_cams_;
-        std::map<int, int> contain_mw_cams_;
+        std::map<int /*frame_id*/, int /*size_of_venom */> contain_mw_cams_;
 
     protected:
         Eigen::Vector3d pos_normalized_Trajectory;
