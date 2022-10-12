@@ -1,7 +1,7 @@
 /*
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-10-06 02:40:42
- * @LastEditTime: 2022-10-06 16:13:27
+ * @LastEditTime: 2022-10-12 17:44:45
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/test/main_entrance.cc
@@ -27,13 +27,6 @@ int main(int argc, char **argv)
     // interface
     simulator::Interface venom_entrance;
     venom_entrance.start();
-
-//     // detect venom for each frame
-//     simulator::Track* tracker = new simulator::Track(robot_trajectory, vec_ptr_maplines);
-//     tracker->VenomFrameDetection();
-
-//     tracker->VenomAssociation();
-
 
 //     std::vector<Eigen::Matrix4d> vec_traject_Twc_opti;
     // simulator::pointLocalBundleAdjustment::optimize(recon.tri_point_xyz_, vec_meas_keyframe_mp, robot_trajectory.vec_traject_gt_Twc_, vec_traject_Twc_opti);

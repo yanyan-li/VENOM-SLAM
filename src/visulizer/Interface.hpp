@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-10-06 02:37:57
- * @LastEditTime: 2022-10-11 16:19:35
+ * @LastEditTime: 2022-10-12 17:43:22
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/src/visulizer/Interface.hpp
@@ -126,9 +126,9 @@ namespace simulator
                 pangolin::Var<bool> menuShowRefinedCamera("menu.Rotation Estimation", false, true);
 
                 
-                pangolin::Var<bool> optimization("menu.Optimization", false, false);
-                pangolin::Var<bool> menuShowTrajectoryOpti("menu.Show TrajectoryOpti", false, true);
-                pangolin::Var<bool> meanShowPointOpti("menu.Optimize Point", false, true);
+                // pangolin::Var<bool> optimization("menu.Optimization", false, false);
+                // pangolin::Var<bool> menuShowTrajectoryOpti("menu.Show TrajectoryOpti", false, true);
+                // pangolin::Var<bool> meanShowPointOpti("menu.Optimize Point", false, true);
 
                 pangolin::OpenGlMatrix Twc;
                 Twc.SetIdentity();
@@ -237,19 +237,19 @@ namespace simulator
 
 
 
-                    if (set_optimization_click_here && !set_association_click_once) // finish association
-                    {
-                        if (optimization)
-                        {
-                            // optimization
-                            // TODO:
-                            menuShowTrajectoryOpti = true;
-                            meanShowPointOpti = true;
-                            std::cout << std::endl
-                                      << "\033[0;35m [Venom Similator Printer] Optimize reconstructed landmarks and cameras. \033[0m" << std::endl;
-                            set_optimization_click_here = false;
-                        }
-                    }
+                    // if (set_optimization_click_here && !set_association_click_once) // finish association
+                    // {
+                    //     if (optimization)
+                    //     {
+                    //         // optimization
+                    //         // TODO:
+                    //         // menuShowTrajectoryOpti = true;
+                    //         // meanShowPointOpti = true;
+                    //         std::cout << std::endl
+                    //                   << "\033[0;35m [Venom Similator Printer] Optimize reconstructed landmarks and cameras. \033[0m" << std::endl;
+                    //         set_optimization_click_here = false;
+                    //     }
+                    // }
 
                     const double lens = 0.5;
                     glLineWidth(2.0);
@@ -293,23 +293,23 @@ namespace simulator
 
 
 
-                    if (meanShowPointOpti)
-                    {
-                        // call bundleadjustment functions
+                    // if (meanShowPointOpti)
+                    // {
+                    //     // call bundleadjustment functions
 
-                        for (int i = 0; i < point_obs_.size(); ++i)
-                        {
-                            const auto &obs = point_obs_[i];
-                            const auto &ob = obs.begin();
-                            const int cam_id = ob->first;
+                    //     for (int i = 0; i < point_obs_.size(); ++i)
+                    //     {
+                    //         const auto &obs = point_obs_[i];
+                    //         const auto &ob = obs.begin();
+                    //         const int cam_id = ob->first;
 
-                            glPointSize(5);
-                            glBegin(GL_POINTS);
-                            glColor3f(1.0, 1.0, 1.0);
-                            glVertex3d(tri_point_xyz_[i](0, 0), tri_point_xyz_[i](1, 0), tri_point_xyz_[i](2, 0));
-                            glEnd();
-                        }
-                    }
+                    //         glPointSize(5);
+                    //         glBegin(GL_POINTS);
+                    //         glColor3f(1.0, 1.0, 1.0);
+                    //         glVertex3d(tri_point_xyz_[i](0, 0), tri_point_xyz_[i](1, 0), tri_point_xyz_[i](2, 0));
+                    //         glEnd();
+                    //     }
+                    // }
 
                     if (menuShowTrajectory)
                     {
@@ -318,12 +318,12 @@ namespace simulator
                         DrawAllTrajectory(MsTrue);
                     }
 
-                    if (menuShowTrajectoryOpti)
-                    {
-                        std::vector<pangolin::OpenGlMatrix> MsTrue;
-                        CallTrajectoryTrue(MsTrue, Twcs_);
-                        DrawAllOptiTrajectory(MsTrue);
-                    }
+                    // if (menuShowTrajectoryOpti)
+                    // {
+                    //     std::vector<pangolin::OpenGlMatrix> MsTrue;
+                    //     CallTrajectoryTrue(MsTrue, Twcs_);
+                    //     DrawAllOptiTrajectory(MsTrue);
+                    // }
 
                     //        if(menuShowTrajectoryOpti)
                     //        {
@@ -445,8 +445,33 @@ namespace simulator
                    }
                }
 
+               std::vector< std::vector<std::pair<int/*frame_id*/, Eigen::Matrix3d /*Rcm*/ >>> venom_association;
+               venom_association = std::vector< std::vector<std::pair<int/*frame_id*/, Eigen::Matrix3d /*Rcm*/ >>>(vec_anchor_id.size(), std::vector<std::pair<int/*frame_id*/, Eigen::Matrix3d /*Rcm*/ >>());
+               
+
+               for (int i = 0; i < vec_anchor_id.size(); i++) //visit all anchors
+               {
+                   // target
+                   int anchor_frame_id = vec_anchor_id[i]; // which frame 
+                   int anchor_venom_type = vec_venom_anchors[0].first; // which venom
+                   Eigen::Matrix3d anchor_rot_cam_venom = vec_venom_anchors[0].second; // rotation Rcm
+
+                   // save anchor 
+                   venom_association[i].push_back(std::make_pair(anchor_frame_id, anchor_rot_cam_venom));
+                   for (int j = 0; j < ptr_robot_trajectory->obs_mw_.size(); j++) // visit all frames
+                   {
+                       int venom_type = ptr_robot_trajectory->obs_mw_[i][0].first;
+                       Eigen::Matrix3d rot_cam_venom = ptr_robot_trajectory->obs_mw_[i][0].second;
+
+                       // save other frames 
+                       if(venom_type==anchor_venom_type)
+                        venom_association[i].push_back(std::make_pair(j, rot_cam_venom) );
+                   }
+               }
+
                for (int i = 0; i < Ms.size(); i++)
                {
+                   // show anchors 
                    for (int j = 0; j < vec_anchor_id.size(); j++)
                    {
                        if (i == vec_anchor_id[j])
@@ -457,6 +482,24 @@ namespace simulator
                            DrawSigCam(Ms[i], r, g, b);
                        }
                    }
+
+                   glLineWidth(2);
+                   for(int j = 0; j<venom_association.size(); j++)
+                   {
+                       
+                       glBegin(GL_LINES);
+                       glColor3f(0.5f*j, 1.f*j, 0.1f*j);
+                       int anchor_index = venom_association[j][0].first;
+                       for (int k = 0; k < venom_association[j].size() - 1; k++)
+                       {
+                           int index =  venom_association[j][k].first;
+                           glVertex3f(Twcs_true_[index](0, 3), Twcs_true_[index](1, 3), Twcs_true_[index](2, 3));
+                           glVertex3f(Twcs_true_[anchor_index](0, 3), Twcs_true_[anchor_index](1, 3), Twcs_true_[anchor_index](2, 3));
+                       }
+                       
+                   }
+                   glEnd();
+
                }
            }
 
