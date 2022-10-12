@@ -91,7 +91,7 @@ make
 <h5 align="center">
     x: frame_id; y: Measurements detected by each frame.(Left: mappoints; Right: maplines. )
 </h5> 
-![](images/line-point-meas.png)
+![line-point-meas](images/line-point-meas.png)
 
 <h5 align="center">
     Figure. Left image shows a trajectory, while venom anchors are detected in the right image. 
