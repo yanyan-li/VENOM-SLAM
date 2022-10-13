@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-10-06 02:37:57
- * @LastEditTime: 2022-10-12 17:43:22
+ * @LastEditTime: 2022-10-13 18:18:08
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/src/visulizer/Interface.hpp
@@ -34,17 +34,17 @@ namespace simulator
  
        public:
            
-           simulator::Trajectory *ptr_robot_trajectory;
-           simulator::Track*  ptr_venom_track;
-
+           simulator::Trajectory* ptr_robot_trajectory_; // 
+           simulator::Track*  ptr_track_venom_; //
            simulator::Reconstruct recon;
 
-           // all mappoints and camera pose
-           std::vector<Eigen::Vector3d> points_true_;
-           std::vector<Eigen::Matrix<double, 3, 2>> lines_true_;
-
+           // 3D landmarks of the environment
+           std::vector<Eigen::Vector3d> points_gt_;
+           std::vector<Eigen::Matrix<double, 3, 2>> lines_gt_;
+           // trajectory of the robot
            std::vector<Eigen::Matrix4d> Twcs_true_;
            std::vector<Eigen::Matrix4d> Twcs_;
+           // 
            std::vector<std::vector<std::pair<int, Eigen::Vector3d>>> point_obs_;
            std::vector<double> tri_point_inverse_depth_;
            std::vector<Eigen::Vector3d> tri_point_xyz_;
@@ -65,7 +65,7 @@ namespace simulator
 
             //--> landmarks generation
             // mappoints
-            std::vector<simulator::MapPoint *> vec_ptr_mappoints;
+            std::vector<simulator::MapPoint *> vec_ptr_mappoints_;
             std::vector<Eigen::Vector3d> points_gt;
             std::vector<std::vector<std::pair<int, Eigen::Vector3d>>> vec_meas_keyframe_mp;
             std::vector<std::vector<std::pair<int, Eigen::Vector3d>>> vec_gt_keyframe_mp;
@@ -185,9 +185,8 @@ namespace simulator
                         if (start_env)
                         {
                             // start signal for drawing env&pose
-                            //
                             SetSimulatorParameters();
-                            SetEnvParameter(points_gt, lines_gt, ptr_robot_trajectory->vec_traject_gt_Twc_);
+                            SetEnvParameter(points_gt, lines_gt, ptr_robot_trajectory_->vec_traject_gt_Twc_);
                             menuShowTrajectory = true;
                             menuShowPoint = true;
                             menuShowLine = true;
@@ -205,9 +204,9 @@ namespace simulator
                             // camera-landmark association
                             // 
                             
-                            recon.Triangulation(vec_meas_keyframe_mp, ptr_robot_trajectory->vec_traject_gt_Twc_);
+                            recon.Triangulation(vec_meas_keyframe_mp, ptr_robot_trajectory_->vec_traject_gt_Twc_);
     
-                            SetReconstructedLandmarks(ptr_robot_trajectory->obs, recon.tri_point_inverse_depth_, recon.tri_point_xyz_ );
+                            SetReconstructedLandmarks(ptr_robot_trajectory_->obs, recon.tri_point_inverse_depth_, recon.tri_point_xyz_ );
 
                             menuShowPointRecon = true;
                             menuShowLineRecon = true;
@@ -223,8 +222,8 @@ namespace simulator
                     {
                         if(rotation_esti)
                         {
-                            ptr_venom_track->VenomFrameDetection();
-                            //ptr_venom_track->VenomAssociation();
+                            ptr_track_venom_->VenomFrameDetection();
+                            //ptr_track_venom_->VenomAssociation();
                             menuShowEGraph = true; 
                             menuShowRefinedCamera = true;
                             std::cout << std::endl
@@ -273,7 +272,7 @@ namespace simulator
                         glPointSize(5);
                         glBegin(GL_POINTS);
                         glColor3f(1.0, 0.0, 0.0);
-                        for (auto p : points_true_)
+                        for (auto p : points_gt_)
                         {
                             glVertex3d(p[0], p[1], p[2]);
                         }
@@ -348,7 +347,7 @@ namespace simulator
                                std::vector<Eigen::Matrix4d> &Twcs, std::vector<std::vector<std::pair< int,Eigen::Vector3d>>> &point_obs,
                                std::vector<double> &tri_point_inverse_depth, std::vector<Eigen::Vector3d> &tri_point_xyz)
            {
-               points_true_ = mappoints; // ground truth point
+               points_gt_ = mappoints; // ground truth point
                tri_point_xyz_ = tri_point_xyz; // optimized 3D point
                point_obs_ = point_obs;   //  normalized noisy measurement
                tri_point_inverse_depth_ = tri_point_inverse_depth; // inverse depth
@@ -370,8 +369,8 @@ namespace simulator
             */
            void SetEnvParameter(std::vector<Eigen::Vector3d> &mappoints, std::vector<Eigen::Matrix<double,3,2>> &maplines, std::vector<Eigen::Matrix4d> &Twcs_gt)
            {
-               points_true_ = mappoints; // ground truth point
-               lines_true_ = maplines;
+               points_gt_ = mappoints; // ground truth point
+               lines_gt_ = maplines;
                Twcs_true_ = Twcs_gt; // ground truth pose
            }
 
@@ -426,13 +425,13 @@ namespace simulator
                std::vector<int> vec_anchor_id;
                std::set<int> set_venom_type;
                // anchors
-               for (int i = 0; i < ptr_robot_trajectory->obs_mw_.size(); i++)
+               for (int i = 0; i < ptr_robot_trajectory_->obs_mw_.size(); i++)
                {
                    // the i th frame detects a venom
-                   if (ptr_robot_trajectory->obs_mw_[i].size() > 0)
+                   if (ptr_robot_trajectory_->obs_mw_[i].size() > 0)
                    {
-                       int venom_id = ptr_robot_trajectory->obs_mw_[i][0].first;
-                       Eigen::Matrix3d rot_cam_venom = ptr_robot_trajectory->obs_mw_[i][0].second;
+                       int venom_id = ptr_robot_trajectory_->obs_mw_[i][0].first;
+                       Eigen::Matrix3d rot_cam_venom = ptr_robot_trajectory_->obs_mw_[i][0].second;
 
                        if (!set_venom_type.count(venom_id))
                        {
@@ -458,10 +457,10 @@ namespace simulator
 
                    // save anchor 
                    venom_association[i].push_back(std::make_pair(anchor_frame_id, anchor_rot_cam_venom));
-                   for (int j = 0; j < ptr_robot_trajectory->obs_mw_.size(); j++) // visit all frames
+                   for (int j = 0; j < ptr_robot_trajectory_->obs_mw_.size(); j++) // visit all frames
                    {
-                       int venom_type = ptr_robot_trajectory->obs_mw_[i][0].first;
-                       Eigen::Matrix3d rot_cam_venom = ptr_robot_trajectory->obs_mw_[i][0].second;
+                       int venom_type = ptr_robot_trajectory_->obs_mw_[i][0].first;
+                       Eigen::Matrix3d rot_cam_venom = ptr_robot_trajectory_->obs_mw_[i][0].second;
 
                        // save other frames 
                        if(venom_type==anchor_venom_type)
@@ -621,7 +620,7 @@ namespace simulator
                glLineWidth(2.0);
                glBegin(GL_LINES);
                glColor3f(1.0f,0.0f,0.0f);
-               for(const auto & Line:lines_true_)
+               for(const auto & Line:lines_gt_)
                {
                    Eigen::Vector3d line0 = Line.block(0,0,3,1);
                    Eigen::Vector3d line1 = Line.block(0,1,3,1);
@@ -635,12 +634,12 @@ namespace simulator
            void SetSimulatorParameters()
            {
             //set cameras
-            ptr_robot_trajectory = new simulator::Trajectory(traject_type_, frame_num_);
+            ptr_robot_trajectory_ = new simulator::Trajectory(traject_type_, frame_num_);
             
             if(traject_type_==0)
-                ptr_robot_trajectory->GenerateTrajectory(simulator::Trajectory::CYCLE, frame_num_);
+                ptr_robot_trajectory_->GenerateTrajectory(simulator::Trajectory::CYCLE, frame_num_);
             else if(traject_type_==1)
-                ptr_robot_trajectory->GenerateTrajectory(simulator::Trajectory::SPHERE, frame_num_);
+                ptr_robot_trajectory_->GenerateTrajectory(simulator::Trajectory::SPHERE, frame_num_);
 
             //set mappoins
             //set maplines
@@ -648,7 +647,7 @@ namespace simulator
             SetMapLineParameters();  
 
             //after preparing line landmarks, we then detect venom relationships
-            ptr_venom_track = new simulator::Track(ptr_robot_trajectory, vec_ptr_maplines);
+            ptr_track_venom_ = new simulator::Track(ptr_robot_trajectory_, vec_ptr_maplines);
 
            }
 
@@ -667,7 +666,7 @@ namespace simulator
            {
                for (int id = 0; id < vert_lines_+horiz_lines_; id++)
                {
-                   simulator::MapLine *ptr_ml = new simulator::MapLine(id, ptr_robot_trajectory);
+                   simulator::MapLine *ptr_ml = new simulator::MapLine(id, ptr_robot_trajectory_);
                    if (id < 0.25*vert_lines_)
                        ptr_ml->GenerateMapLine(distance, "vertical-left");
                    else if (id < 0.5*vert_lines_)
@@ -685,7 +684,7 @@ namespace simulator
                    else if (id < vert_lines_+horiz_lines_)
                        ptr_ml->GenerateMapLine(-distance, "horizontal-right");
 
-                   ptr_ml->AddObservation(ptr_robot_trajectory->vec_traject_gt_Twc_, add_noise_to_meas);
+                   ptr_ml->AddObservation(ptr_robot_trajectory_->vec_traject_gt_Twc_, add_noise_to_meas);
                    lines_gt.push_back(ptr_ml->pos_world_);
                    vec_meas_keyframe_ml.push_back(ptr_ml->vec_obs_);
                    vec_gt_keyframe_ml.push_back(ptr_ml->vec_obs_gt_);
@@ -693,9 +692,9 @@ namespace simulator
                }
 
 #ifdef __VERBOSE__//OFF
-               for (int j = 0, jend = ptr_robot_trajectory->vec_traject_gt_Twc_.size(); j < jend; j++)
+               for (int j = 0, jend = ptr_robot_trajectory_->vec_traject_gt_Twc_.size(); j < jend; j++)
                {
-                   std::cout << "the " << j << " th camera detects " << ptr_robot_trajectory->contain_ml_cams_[j]
+                   std::cout << "the " << j << " th camera detects " << ptr_robot_trajectory_->contain_ml_cams_[j]
                              << " maplines" << std::endl;
                }
 #endif
@@ -705,7 +704,7 @@ namespace simulator
            {
                for (int id = 0; id < vert_points_; id++)
                {
-                   simulator::MapPoint *ptr_mp = new simulator::MapPoint(id, ptr_robot_trajectory);
+                   simulator::MapPoint *ptr_mp = new simulator::MapPoint(id, ptr_robot_trajectory_);
                    if (id < 0.25*vert_points_)                                             // vertical-left
                        ptr_mp->GenerateMapPoint(distance, "vertical-left"); // left side of the wall
                    else if (id < 0.5*vert_points_)
@@ -715,7 +714,7 @@ namespace simulator
                    else if (id < vert_points_)
                        ptr_mp->GenerateMapPoint(-distance, "vertical-right"); // back side
 
-                   ptr_mp->AddObservation(ptr_robot_trajectory->vec_traject_gt_Twc_, add_noise_to_meas);
+                   ptr_mp->AddObservation(ptr_robot_trajectory_->vec_traject_gt_Twc_, add_noise_to_meas);
                    // ptr_mp->print();
                    points_gt.push_back(ptr_mp->pos_world_);
                    // vec_meas_keyframe_mp: mappoint_id<camera_id, mappoint_value>
@@ -723,9 +722,9 @@ namespace simulator
                    vec_gt_keyframe_mp.push_back(ptr_mp->obs_gt);
                }
 #ifdef __VERBOSE__OFF
-               for (int j = 0, jend = ptr_robot_trajectory->vec_traject_gt_Twc_.size(); j < jend; j++)
+               for (int j = 0, jend = ptr_robot_trajectory_->vec_traject_gt_Twc_.size(); j < jend; j++)
                {
-                   std::cout << "the " << j << " th camera detects " << ptr_robot_trajectory->contain_mp_cams_[j]
+                   std::cout << "the " << j << " th camera detects " << ptr_robot_trajectory_->contain_mp_cams_[j]
                              << " mappoints" << std::endl;
                }
 #endif

@@ -23,8 +23,8 @@ namespace simulator
  
        public:
            // all mappoints and camera pose
-           std::vector<Eigen::Vector3d> points_true_;
-           std::vector<Eigen::Matrix<double,3,2>> lines_true_;
+           std::vector<Eigen::Vector3d> points_gt_;
+           std::vector<Eigen::Matrix<double,3,2>> lines_gt_;
 
            std::vector<Eigen::Matrix4d> Twcs_true_; 
            std::vector<Eigen::Matrix4d> Twcs_;
@@ -172,7 +172,7 @@ namespace simulator
                        glPointSize(5);
                        glBegin(GL_POINTS);
                        glColor3f(1.0,0.0,0.0);
-                       for(auto p : points_true_)
+                       for(auto p : points_gt_)
                        {
                            glVertex3d( p[0], p[1], p[2]);
                        }
@@ -381,7 +381,7 @@ namespace simulator
                glLineWidth(2.0);
                glBegin(GL_LINES);
                glColor3f(1.0f,0.0f,0.0f);
-               for(const auto & Line:lines_true_)
+               for(const auto & Line:lines_gt_)
                {
                    Eigen::Vector3d line0 = Line.block(0,0,3,1);
                    Eigen::Vector3d line1 = Line.block(0,1,3,1);
@@ -395,7 +395,7 @@ namespace simulator
                                std::vector<Eigen::Matrix4d> &Twcs, std::vector<std::vector<std::pair< int,Eigen::Vector3d>>> &point_obs,
                                std::vector<double> &tri_point_inverse_depth, std::vector<Eigen::Vector3d> &tri_point_xyz)
            {
-               points_true_ = mappoints; // ground truth point
+               points_gt_ = mappoints; // ground truth point
                tri_point_xyz_ = tri_point_xyz; // optimized 3D point
                point_obs_ = point_obs;   //  normalized noisy measurement
                tri_point_inverse_depth_ = tri_point_inverse_depth; // inverse depth
@@ -419,8 +419,8 @@ namespace simulator
                                std::vector<Eigen::Matrix4d> &Twcs, std::vector<std::vector<std::pair< int,Eigen::Vector3d>>> &point_obs,
                                std::vector<double> &tri_point_inverse_depth, std::vector<Eigen::Vector3d> &tri_point_xyz)
            {
-               points_true_ = mappoints; // ground truth point
-               lines_true_ = maplines;
+               points_gt_ = mappoints; // ground truth point
+               lines_gt_ = maplines;
                tri_point_xyz_ = tri_point_xyz; // optimized 3D point
                point_obs_ = point_obs;   //  normalized noisy measurement
                tri_point_inverse_depth_ = tri_point_inverse_depth; // inverse depth
