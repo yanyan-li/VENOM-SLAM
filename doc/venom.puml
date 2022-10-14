@@ -1,33 +1,86 @@
 @startuml "VenomSimulator"
-class Test
+
+interface main_entrance
 {
-
-
+    start() 
 }
 
-class Interface 
+class Interface implements main_entrance
 {
-    +show()
+    + StartVenom() 
+    ' Build the system
+    - SetVenomParameter() 
+    - SaveVenomConfig()
+    - BuildTrajectory()
+    - BuildEnvironment()
+    - BuildEnvPoints()
+    - BuildEnvLines()
+    - BuildEnvPlanes()
+    - ShowTrajectory()
+    - ShowEnvironment()
+    - ShowReconstructedPoints()
+    - ShowReconstructedLines()
+    ' Start tracking
+    - StartTracking()
+    ' members
+    + Trajectory * ptr_traject_
+    + Track *ptr_track_
+} 
 
-}
+
+Interface --> Trajectory
+Interface --> Track
+Interface -[dotted]-> MapPoint
+Interface -[dotted]-> MapLine
+Interface -[dotted]-> MapPlane
+
+
+Track -[dotted]-> MapPoint
+Track -[dotted]-> MapLine
+Track -[dotted]-> MapPlane
+
+Trajectory -[dotted]-> MapPoint
+Trajectory -[dotted]-> MapLine
+Trajectory -[dotted]-> MapPlane
 
 class  Trajectory
 {
+    + Trajectory()
+    + GenerateTrajectory(TrajectoryType,int)
+    + CyclePoseGeneration()
+    + SpherePoseGeneration()
+    + GenerateCycleKeyFrames()
+    + GenerateSphereKeyFrames()
 
 }
 
 class Track
 {
+    'feature detected in each camera
+    + PointFeatureDetection()
+    + LineFeatureDetection()
 
+    'triangulate 
+    + Triangulation()
+    + TrackLastFrame()
+    + TrackVenom()
+    + PoseOptimization()
 }
 
-class Point
+class MapPoint
 {
-
+    + MapPoint()
+    + GenerateMapPoint()
+    ' bundle the relationships between mp and frames
+    + DoubleConnect()
 }
 
-class Line
+class MapLine
 {
+    + MapLine()
+    + GenerateMapLinet()
+    ' bundle the relationships between mp and frames
+    + DoubleConnect()
     
 }
 @enduml
