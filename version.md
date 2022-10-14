@@ -26,4 +26,4 @@ Architecture:
     Docker              ## docker environments
 ```
 
-![archi](/home/tf/Documents/VENOM/images/archi.png)
+![archi](images/archi.png)
