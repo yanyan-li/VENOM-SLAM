@@ -1,7 +1,7 @@
 /*
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-10-06 02:40:42
- * @LastEditTime: 2022-10-12 17:44:45
+ * @LastEditTime: 2022-10-16 03:13:53
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/test/main_entrance.cc
@@ -21,17 +21,12 @@ int main(int argc, char **argv)
 
     std::cout << std::endl << 
         "\033[0;32mVenom SLAM Simulator Software Copyright (C) 2022 Yanyan Li, Technical University of Munich." << std::endl <<
-        "This is a free software that is used to learn, teach, and test SLAM strategies." << std::endl <<
+        "This is a free software that is used for learning, teaching, and testing SLAM strategies." << std::endl <<
         "And you are welcome to contribute it and redistribute it under certain conditions. See LICENSE.txt. \033[0m" << std::endl << std::endl;
 
     // interface
     simulator::Interface venom_entrance;
-    venom_entrance.start();
-
-//     std::vector<Eigen::Matrix4d> vec_traject_Twc_opti;
-    // simulator::pointLocalBundleAdjustment::optimize(recon.tri_point_xyz_, vec_meas_keyframe_mp, robot_trajectory.vec_traject_gt_Twc_, vec_traject_Twc_opti);
-
-   
+    venom_entrance.StartVenom();
 
     //
     return 0;

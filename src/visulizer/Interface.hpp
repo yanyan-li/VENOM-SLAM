@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-10-06 02:37:57
- * @LastEditTime: 2022-10-13 18:18:08
+ * @LastEditTime: 2022-10-16 15:22:03
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/src/visulizer/Interface.hpp
@@ -35,8 +35,8 @@ namespace simulator
        public:
            
            simulator::Trajectory* ptr_robot_trajectory_; // 
-           simulator::Track*  ptr_track_venom_; //
-           simulator::Reconstruct recon;
+           simulator::Track*  ptr_tracker_; //
+           // simulator::Reconstruct recon;
 
            // 3D landmarks of the environment
            std::vector<Eigen::Vector3d> points_gt_;
@@ -76,8 +76,9 @@ namespace simulator
             std::vector<std::vector<std::pair<int, Eigen::Matrix<double, 3, 2>>>> vec_gt_keyframe_ml;
 
         public:
-            void start()
+            void StartVenom()
             {
+                //--> interface
                 pangolin::CreateWindowAndBind(" VENOM (0.0.2) SLAM (backend) Simulator", 1024, 768);
                 // 3D Mouse handler requires depth testing to be enabled
                 glEnable(GL_DEPTH_TEST);
@@ -112,7 +113,7 @@ namespace simulator
                 pangolin::Var<int> set_vert_lines("menu.Num of Vertical Lines:", 0);
                 pangolin::Var<int> set_horiz_lines("menu.Num of Horizontal Lines:", 0);
 
-                pangolin::Var<bool> start_env("menu.Show Cameras & Environment", false, false);
+                pangolin::Var<bool> start_traject_env("menu.Show Cameras & Environment", false, false);
                 pangolin::Var<bool> menuShowTrajectory("menu.Show TrajectoryGT", false, true);
                 pangolin::Var<bool> menuShowPoint("menu.Groudtruth Point", false, true);
                 pangolin::Var<bool> menuShowLine("menu.Groudtruth Line", false, true);
@@ -132,16 +133,16 @@ namespace simulator
 
                 pangolin::OpenGlMatrix Twc;
                 Twc.SetIdentity();
-
                 std::vector<pangolin::OpenGlMatrix> Twcs;
                 Twcs.push_back(Twc);
-                bool bFollow = true;
-                bool bLocalizationMode = false;
-                int Single_rpr_id = 0;
-                int Single_line_id = 0;
-                bool line_id_change = false;
+                
+                // bool bFollow = true;
+                // bool bLocalizationMode = false;
+                // int Single_rpr_id = 0;
+                // int Single_line_id = 0;
+                // bool line_id_change = false;
+                // int cut_i = 0;
 
-                int cut_i = 0;
                 // click control
                 bool set_para_click_once = true;
                 bool set_start_means_click_once = true;
@@ -154,17 +155,18 @@ namespace simulator
                     // clear
                     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
                     d_cam.Activate(s_cam);
-                    // background
+                    //-------> background
                     if (menuWhite)
                         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
                     else
                         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
-                    //-------> set parameters via buttons
+                    //----step1---> set parameters via buttons
                     if (set_para_click_once)
                     {
                         if (set_env)
                         {
+                            // show env parameters
                             set_traject_num = traject_num;
                             set_traject_type = traject_type;
                             set_vert_points = vert_points;
@@ -172,21 +174,24 @@ namespace simulator
                             set_vert_lines = vert_lines;
                             set_horiz_lines = horiz_lines;
                             std::cout << std::endl
-                                      << "\033[0;35m [Venom Similator Printer] The Environment was constructed. \033[0m" << std::endl;
+                                      << "\033[0;35m[Venom Similator Printer] The Environment was constructed. \033[0m" << std::endl;
                             set_para_click_once = false;
                             // set config parameters for env
-                            SetConfig(traject_num, traject_type, vert_lines, horiz_lines, vert_points,horiz_points);
+                            InputSystemParameters(traject_num, traject_type, vert_lines, horiz_lines, vert_points,horiz_points);
+                            SaveSystemConfig("system_parameter.txt");
                         }
                     }
 
-                    //-------> set parameters to those SLAM modules
-                    if (set_start_means_click_once && !set_para_click_once) // finish set_para
+                    //----step2---> set parameters to those SLAM modules
+                    if (set_start_means_click_once && !set_para_click_once) // finish set_paras
                     {
-                        if (start_env)
+                        if (start_traject_env)
                         {
                             // start signal for drawing env&pose
-                            SetSimulatorParameters();
-                            SetEnvParameter(points_gt, lines_gt, ptr_robot_trajectory_->vec_traject_gt_Twc_);
+                            SetSystemParameters();
+                            // show the set parameters
+                            ShowFixedTrajecEnv(points_gt, lines_gt, ptr_robot_trajectory_->vec_traject_gt_Twc_);
+                            
                             menuShowTrajectory = true;
                             menuShowPoint = true;
                             menuShowLine = true;
@@ -196,17 +201,20 @@ namespace simulator
                         }
                     }
 
-                    //-------> build 2D measurement and 3D relationships for each camera
+                    //----step3---> build 2D measurement and 3D relationships for each camera
                     if (set_association_click_once && !set_start_means_click_once) // finish start_means
                     {
                         if (associate_meas)
                         {
                             // camera-landmark association
                             // 
+                            // start the track module
+                            StartTracking();
                             
-                            recon.Triangulation(vec_meas_keyframe_mp, ptr_robot_trajectory_->vec_traject_gt_Twc_);
-    
-                            SetReconstructedLandmarks(ptr_robot_trajectory_->obs, recon.tri_point_inverse_depth_, recon.tri_point_xyz_ );
+                            // mappoint reconstruction based on observations 
+                            ptr_tracker_->Triangulation(vec_meas_keyframe_mp, ptr_robot_trajectory_->vec_traject_gt_Twc_);
+                            
+                            ShowReconTrajecEnv(ptr_robot_trajectory_->obs, ptr_tracker_->tri_point_inverse_depth_, ptr_tracker_->tri_point_xyz_ );
 
                             menuShowPointRecon = true;
                             menuShowLineRecon = true;
@@ -222,10 +230,10 @@ namespace simulator
                     {
                         if(rotation_esti)
                         {
-                            ptr_track_venom_->VenomFrameDetection();
-                            //ptr_track_venom_->VenomAssociation();
-                            menuShowEGraph = true; 
-                            menuShowRefinedCamera = true;
+                            ptr_tracker_->VenomFrameDetection();
+                            //ptr_tracker_->VenomAssociation();
+                            menuShowEGraph = false; 
+                            menuShowRefinedCamera = false;
                             std::cout << std::endl
                                       << "\033[0;35m [Venom Similator Printer] Extensibility Graph Generation. \033[0m" << std::endl;
                             
@@ -289,9 +297,6 @@ namespace simulator
                         ShowVenomAnchors(MsTrue);
                     }
 
-
-
-
                     // if (meanShowPointOpti)
                     // {
                     //     // call bundleadjustment functions
@@ -333,6 +338,11 @@ namespace simulator
                     //
                     if (menuShowLine)
                         DrawTrueLine();
+
+                    if(menuShowRefinedCamera)
+                    {
+                        //RotationEstimationEGraph();    
+                    }
                     //
                     //        if(menuShowOptiLines)
                     //            DrawOptiiLines();
@@ -356,25 +366,9 @@ namespace simulator
                Twcs_ = Twcs;         // optimized Twcs
            }
 
-           /**
-            * @brief Set the Env Parameter object
-            * 
-            * @param mappoints 
-            * @param maplines 
-            * @param Twcs_gt 
-            * @param Twcs 
-            * @param point_obs 
-            * @param tri_point_inverse_depth 
-            * @param tri_point_xyz 
-            */
-           void SetEnvParameter(std::vector<Eigen::Vector3d> &mappoints, std::vector<Eigen::Matrix<double,3,2>> &maplines, std::vector<Eigen::Matrix4d> &Twcs_gt)
-           {
-               points_gt_ = mappoints; // ground truth point
-               lines_gt_ = maplines;
-               Twcs_true_ = Twcs_gt; // ground truth pose
-           }
+           
 
-           void SetReconstructedLandmarks(std::vector<std::vector<std::pair< int,Eigen::Vector3d>>> &point_obs, std::vector<double> &tri_point_inverse_depth, std::vector<Eigen::Vector3d> &tri_point_xyz)
+           void ShowReconTrajecEnv(std::vector<std::vector<std::pair< int,Eigen::Vector3d>>> &point_obs, std::vector<double> &tri_point_inverse_depth, std::vector<Eigen::Vector3d> &tri_point_xyz)
            {
              point_obs_ = point_obs;   //  normalized noisy measurement
              tri_point_xyz_ = tri_point_xyz; // optimized 3D point
@@ -425,13 +419,14 @@ namespace simulator
                std::vector<int> vec_anchor_id;
                std::set<int> set_venom_type;
                // anchors
-               for (int i = 0; i < ptr_robot_trajectory_->obs_mw_.size(); i++)
+               for (int frame_id = 0; frame_id < ptr_robot_trajectory_->obs_mw_.size(); frame_id++)
                {
                    // the i th frame detects a venom
-                   if (ptr_robot_trajectory_->obs_mw_[i].size() > 0)
+                   if (ptr_robot_trajectory_->obs_mw_[frame_id].size() > 0)
                    {
-                       int venom_id = ptr_robot_trajectory_->obs_mw_[i][0].first;
-                       Eigen::Matrix3d rot_cam_venom = ptr_robot_trajectory_->obs_mw_[i][0].second;
+                       // we have foud venoms in this environment
+                       int venom_id = ptr_robot_trajectory_->obs_mw_[frame_id][0].first;
+                       Eigen::Matrix3d rot_cam_venom = ptr_robot_trajectory_->obs_mw_[frame_id][0].second;
 
                        if (!set_venom_type.count(venom_id))
                        {
@@ -439,7 +434,7 @@ namespace simulator
                            // std::cout << "rot_cam_venom: " << rot_cam_venom << std::endl;
                            // vec_vd.push_back(vd);
                            set_venom_type.insert(venom_id);
-                           vec_anchor_id.push_back(i);
+                           vec_anchor_id.push_back(frame_id);
                        }
                    }
                }
@@ -452,22 +447,20 @@ namespace simulator
                {
                    // target
                    int anchor_frame_id = vec_anchor_id[i]; // which frame 
-                   int anchor_venom_type = vec_venom_anchors[0].first; // which venom
-                   Eigen::Matrix3d anchor_rot_cam_venom = vec_venom_anchors[0].second; // rotation Rcm
-
+                   int anchor_venom_type = vec_venom_anchors[i].first; // which venom
+                   Eigen::Matrix3d anchor_rot_cam_venom = vec_venom_anchors[i].second; // rotation Rcm 
                    // save anchor 
                    venom_association[i].push_back(std::make_pair(anchor_frame_id, anchor_rot_cam_venom));
+                   
                    for (int j = 0; j < ptr_robot_trajectory_->obs_mw_.size(); j++) // visit all frames
                    {
-                       int venom_type = ptr_robot_trajectory_->obs_mw_[i][0].first;
-                       Eigen::Matrix3d rot_cam_venom = ptr_robot_trajectory_->obs_mw_[i][0].second;
-
+                       int venom_type = ptr_robot_trajectory_->obs_mw_[j][0].first;
+                       Eigen::Matrix3d rot_cam_venom = ptr_robot_trajectory_->obs_mw_[j][0].second;
                        // save other frames 
                        if(venom_type==anchor_venom_type)
                         venom_association[i].push_back(std::make_pair(j, rot_cam_venom) );
                    }
                }
-
                for (int i = 0; i < Ms.size(); i++)
                {
                    // show anchors 
@@ -485,13 +478,17 @@ namespace simulator
                    glLineWidth(2);
                    for(int j = 0; j<venom_association.size(); j++)
                    {
+
+                    // std::cout<<"venom_association[i]:"<<venom_association[j].size()<<std::endl;
                        
                        glBegin(GL_LINES);
                        glColor3f(0.5f*j, 1.f*j, 0.1f*j);
                        int anchor_index = venom_association[j][0].first;
-                       for (int k = 0; k < venom_association[j].size() - 1; k++)
+                       //std::cout<<"j:"<<j<<". Anchor_index: "<<anchor_index<<std::endl;
+                       for (int k = 1; k < venom_association[j].size() - 1; k++)
                        {
                            int index =  venom_association[j][k].first;
+                           //std::cout<<"index:"<<index<<";" ;
                            glVertex3f(Twcs_true_[index](0, 3), Twcs_true_[index](1, 3), Twcs_true_[index](2, 3));
                            glVertex3f(Twcs_true_[anchor_index](0, 3), Twcs_true_[anchor_index](1, 3), Twcs_true_[anchor_index](2, 3));
                        }
@@ -631,38 +628,18 @@ namespace simulator
            }
  
            
-           void SetSimulatorParameters()
+           void SetSystemParameters()
            {
-            //set cameras
-            ptr_robot_trajectory_ = new simulator::Trajectory(traject_type_, frame_num_);
-            
-            if(traject_type_==0)
-                ptr_robot_trajectory_->GenerateTrajectory(simulator::Trajectory::CYCLE, frame_num_);
-            else if(traject_type_==1)
-                ptr_robot_trajectory_->GenerateTrajectory(simulator::Trajectory::SPHERE, frame_num_);
-
-            //set mappoins
-            //set maplines
-            SetMapPointParameters(); 
-            SetMapLineParameters();  
-
-            //after preparing line landmarks, we then detect venom relationships
-            ptr_track_venom_ = new simulator::Track(ptr_robot_trajectory_, vec_ptr_maplines);
-
+               // trajectory
+               BuildTrajectory();
+               // set mappoins
+               BuildEnvMapPoints();
+               // set maplines
+               BuildEnvMapLines();
+               // TODO: set MapPlanes
            }
 
-           void SetConfig(const int &traject_num, const int &traject_type, const int &vert_lines,
-                          const int &horiz_lines,const int &vert_points, const int &horiz_points )
-           {
-            frame_num_ = traject_num;
-            traject_type_ = traject_type;
-            vert_lines_ = vert_lines;
-            horiz_lines_ = horiz_lines; 
-            vert_points_ = vert_points;
-            horiz_points_ = horiz_points;
-           }
-
-           void SetMapLineParameters()
+           void BuildEnvMapLines()
            {
                for (int id = 0; id < vert_lines_+horiz_lines_; id++)
                {
@@ -700,7 +677,7 @@ namespace simulator
 #endif
            }
 
-           void SetMapPointParameters()
+           void BuildEnvMapPoints()
            {
                for (int id = 0; id < vert_points_; id++)
                {
@@ -729,8 +706,67 @@ namespace simulator
                }
 #endif
            }
-           
 
+
+        private:
+            /**
+             * @brief Set the System Parameters object
+             *
+             * @param traject_num
+             * @param traject_type 0: cycle trajectory;  1: sphere trajectory;
+             * @param vert_lines
+             * @param horiz_lines
+             * @param vert_points
+             * @param horiz_points
+             */
+            void InputSystemParameters(const int &traject_num, const int &traject_type, const int &vert_lines,
+                                       const int &horiz_lines, const int &vert_points, const int &horiz_points)
+            {
+                //
+                frame_num_ = traject_num;
+                traject_type_ = traject_type;
+                vert_lines_ = vert_lines;
+                horiz_lines_ = horiz_lines;
+                vert_points_ = vert_points;
+                horiz_points_ = horiz_points;
+            }
+
+            // TODO:
+            void SaveSystemConfig(const std::string &file_name)
+            {
+                // record those parameters
+            }
+
+            void BuildTrajectory()
+            {
+                // set cameras
+                ptr_robot_trajectory_ = new simulator::Trajectory(traject_type_, frame_num_);
+
+                if (traject_type_ == 0)
+                    ptr_robot_trajectory_->GenerateTrajectory(simulator::Trajectory::CYCLE, frame_num_);
+                else if (traject_type_ == 1)
+                    ptr_robot_trajectory_->GenerateTrajectory(simulator::Trajectory::SPHERE, frame_num_);
+            }
+
+            void StartTracking()
+            {
+                // after preparing line landmarks, we then detect venom relationships
+                ptr_tracker_ = new simulator::Track(ptr_robot_trajectory_, vec_ptr_maplines);
+            }
+
+            /**
+             * @brief give the Trajectory and Env Parameter
+             *
+             * @param mappoints
+             * @param maplines
+             * @param Twcs_gt
+             */
+            void ShowFixedTrajecEnv(std::vector<Eigen::Vector3d> &mappoints, std::vector<Eigen::Matrix<double, 3, 2>> &maplines, std::vector<Eigen::Matrix4d> &Twcs_gt)
+            {
+                Twcs_true_ = Twcs_gt;   // ground truth pose
+                points_gt_ = mappoints; // ground truth point
+                lines_gt_ = maplines;
+            }
    };
  
 }

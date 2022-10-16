@@ -38,7 +38,7 @@ int main(int argc, char **argv)
 
     //--> landmarks generation
     // mappoints
-    std::vector<simulator::MapPoint*> vec_ptr_mappoints;
+    std::vector<simulator::MapPoint*> vec_ptr_mappoints_;
     std::vector<Eigen::Vector3d> points_gt;
     std::vector<std::vector<std::pair<int, Eigen::Vector3d>>> vec_meas_keyframe_mp;
     std::vector<std::vector<std::pair<int, Eigen::Vector3d>>> vec_gt_keyframe_mp;
