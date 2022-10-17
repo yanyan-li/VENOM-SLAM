@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-17 16:49:21
- * @LastEditTime: 2022-10-02 11:04:15
+ * @LastEditTime: 2022-10-17 14:58:43
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/src/landmark/MapLine.hpp
@@ -164,7 +164,7 @@ namespace simulator
                    // vec：camera id,  
                    // vec: line id, 
                    // Eigen::Matrix<double,3,2>
-                   traject_->SetKeyFrameDetects(i, this->num_id_, ob_cam); 
+                   traject_->SetKeyFrameDetects(i, this->num_id_, ob); 
                    //std::cout<<"the "<<i<<" th camera. "<<trajec_.contain_mp_cams_[i]<<std::endl;
                    observed++;
                   

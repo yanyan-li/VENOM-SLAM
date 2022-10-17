@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-10-06 02:37:57
- * @LastEditTime: 2022-10-16 15:22:03
+ * @LastEditTime: 2022-10-17 16:13:50
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/src/visulizer/Interface.hpp
@@ -17,7 +17,6 @@
 #include <pangolin/display/display.h>
 #include <pangolin/display/view.h>
 #include <pangolin/scene/axis.h>
-#include <pangolin/scene/scenehandler.h>
 
 #include "src/estimator/Trajectory.hpp"
 #include "src/estimator/Track.hpp"
@@ -48,6 +47,16 @@ namespace simulator
            std::vector<std::vector<std::pair<int, Eigen::Vector3d>>> point_obs_;
            std::vector<double> tri_point_inverse_depth_;
            std::vector<Eigen::Vector3d> tri_point_xyz_;
+
+           //
+           std::vector<std::vector<std::pair<int /*frame_id*/, Eigen::Matrix3d /*Rcm*/>>> venom_association_;
+           std::vector<int> vec_anchor_id_;
+
+           // rotation estimation
+           std::vector<std::vector< std::pair<int, Eigen::Matrix3d> >> rotation_from_venom_;
+           std::vector<std::vector< std::pair<int, Eigen::Matrix3d> >> rotation_from_groundtruth_; 
+ 
+
         
         private:
             //--> parameters
@@ -231,8 +240,11 @@ namespace simulator
                         if(rotation_esti)
                         {
                             ptr_tracker_->VenomFrameDetection();
+
+                            BuildEGraph(vec_anchor_id_);
+                            // std::cout<<"********** end build egraph"<<std::endl;
                             //ptr_tracker_->VenomAssociation();
-                            menuShowEGraph = false; 
+                            menuShowEGraph = true; 
                             menuShowRefinedCamera = false;
                             std::cout << std::endl
                                       << "\033[0;35m [Venom Similator Printer] Extensibility Graph Generation. \033[0m" << std::endl;
@@ -294,7 +306,8 @@ namespace simulator
                     {
                         std::vector<pangolin::OpenGlMatrix> MsTrue;
                         CallTrajectoryTrue(MsTrue, Twcs_true_);
-                        ShowVenomAnchors(MsTrue);
+                        
+                        ShowVenomAnchors(MsTrue,vec_anchor_id_);
                     }
 
                     // if (meanShowPointOpti)
@@ -341,7 +354,8 @@ namespace simulator
 
                     if(menuShowRefinedCamera)
                     {
-                        //RotationEstimationEGraph();    
+                        RotationEstimationEGraph();   
+                        menuShowRefinedCamera = false; 
                     }
                     //
                     //        if(menuShowOptiLines)
@@ -413,54 +427,9 @@ namespace simulator
             * 
             * @param Ms 
             */
-           void ShowVenomAnchors(std::vector<pangolin::OpenGlMatrix>& Ms)
+           void ShowVenomAnchors(std::vector<pangolin::OpenGlMatrix>& Ms,    std::vector<int> &vec_anchor_id)
            {
-               std::vector<std::pair<int, Eigen::Matrix3d>> vec_venom_anchors;
-               std::vector<int> vec_anchor_id;
-               std::set<int> set_venom_type;
-               // anchors
-               for (int frame_id = 0; frame_id < ptr_robot_trajectory_->obs_mw_.size(); frame_id++)
-               {
-                   // the i th frame detects a venom
-                   if (ptr_robot_trajectory_->obs_mw_[frame_id].size() > 0)
-                   {
-                       // we have foud venoms in this environment
-                       int venom_id = ptr_robot_trajectory_->obs_mw_[frame_id][0].first;
-                       Eigen::Matrix3d rot_cam_venom = ptr_robot_trajectory_->obs_mw_[frame_id][0].second;
-
-                       if (!set_venom_type.count(venom_id))
-                       {
-                           vec_venom_anchors.push_back(std::make_pair(venom_id, rot_cam_venom)); // [vd_type] = vd;
-                           // std::cout << "rot_cam_venom: " << rot_cam_venom << std::endl;
-                           // vec_vd.push_back(vd);
-                           set_venom_type.insert(venom_id);
-                           vec_anchor_id.push_back(frame_id);
-                       }
-                   }
-               }
-
-               std::vector< std::vector<std::pair<int/*frame_id*/, Eigen::Matrix3d /*Rcm*/ >>> venom_association;
-               venom_association = std::vector< std::vector<std::pair<int/*frame_id*/, Eigen::Matrix3d /*Rcm*/ >>>(vec_anchor_id.size(), std::vector<std::pair<int/*frame_id*/, Eigen::Matrix3d /*Rcm*/ >>());
                
-
-               for (int i = 0; i < vec_anchor_id.size(); i++) //visit all anchors
-               {
-                   // target
-                   int anchor_frame_id = vec_anchor_id[i]; // which frame 
-                   int anchor_venom_type = vec_venom_anchors[i].first; // which venom
-                   Eigen::Matrix3d anchor_rot_cam_venom = vec_venom_anchors[i].second; // rotation Rcm 
-                   // save anchor 
-                   venom_association[i].push_back(std::make_pair(anchor_frame_id, anchor_rot_cam_venom));
-                   
-                   for (int j = 0; j < ptr_robot_trajectory_->obs_mw_.size(); j++) // visit all frames
-                   {
-                       int venom_type = ptr_robot_trajectory_->obs_mw_[j][0].first;
-                       Eigen::Matrix3d rot_cam_venom = ptr_robot_trajectory_->obs_mw_[j][0].second;
-                       // save other frames 
-                       if(venom_type==anchor_venom_type)
-                        venom_association[i].push_back(std::make_pair(j, rot_cam_venom) );
-                   }
-               }
                for (int i = 0; i < Ms.size(); i++)
                {
                    // show anchors 
@@ -476,18 +445,18 @@ namespace simulator
                    }
 
                    glLineWidth(2);
-                   for(int j = 0; j<venom_association.size(); j++)
+                   for(int j = 0; j<venom_association_.size(); j++)
                    {
 
-                    // std::cout<<"venom_association[i]:"<<venom_association[j].size()<<std::endl;
+                    // std::cout<<"venom_association_[i]:"<<venom_association_[j].size()<<std::endl;
                        
                        glBegin(GL_LINES);
                        glColor3f(0.5f*j, 1.f*j, 0.1f*j);
-                       int anchor_index = venom_association[j][0].first;
+                       int anchor_index = venom_association_[j][0].first;
                        //std::cout<<"j:"<<j<<". Anchor_index: "<<anchor_index<<std::endl;
-                       for (int k = 1; k < venom_association[j].size() - 1; k++)
+                       for (int k = 1; k < venom_association_[j].size() - 1; k++)
                        {
-                           int index =  venom_association[j][k].first;
+                           int index =  venom_association_[j][k].first;
                            //std::cout<<"index:"<<index<<";" ;
                            glVertex3f(Twcs_true_[index](0, 3), Twcs_true_[index](1, 3), Twcs_true_[index](2, 3));
                            glVertex3f(Twcs_true_[anchor_index](0, 3), Twcs_true_[anchor_index](1, 3), Twcs_true_[anchor_index](2, 3));
@@ -668,7 +637,7 @@ namespace simulator
                    vec_ptr_maplines.push_back(ptr_ml);
                }
 
-#ifdef __VERBOSE__//OFF
+#ifdef __VERBOSE__OFF //remove OFF, if you want to print
                for (int j = 0, jend = ptr_robot_trajectory_->vec_traject_gt_Twc_.size(); j < jend; j++)
                {
                    std::cout << "the " << j << " th camera detects " << ptr_robot_trajectory_->contain_ml_cams_[j]
@@ -766,6 +735,102 @@ namespace simulator
                 Twcs_true_ = Twcs_gt;   // ground truth pose
                 points_gt_ = mappoints; // ground truth point
                 lines_gt_ = maplines;
+            }
+
+            void BuildEGraph(std::vector<int> &vec_anchor_id)
+            {
+                std::vector<std::pair<int, Eigen::Matrix3d>> vec_venom_anchors;
+                //std::vector<int> vec_anchor_id;
+                std::set<int> set_venom_type;
+                // anchors
+                for (int frame_id = 0; frame_id < ptr_robot_trajectory_->obs_mw_.size(); frame_id++)
+                {
+                    // the i th frame detects a venom
+                    if (ptr_robot_trajectory_->obs_mw_[frame_id].size() > 0)
+                    {
+                        // we have foud venoms in this environment
+                        int venom_id = ptr_robot_trajectory_->obs_mw_[frame_id][0].first;
+                        Eigen::Matrix3d rot_cam_venom = ptr_robot_trajectory_->obs_mw_[frame_id][0].second;
+
+                        if (!set_venom_type.count(venom_id))
+                        {
+                            vec_venom_anchors.push_back(std::make_pair(venom_id, rot_cam_venom)); // [vd_type] = vd;
+                            // std::cout << "rot_cam_venom: " << rot_cam_venom << std::endl;
+                            // vec_vd.push_back(vd);
+                            set_venom_type.insert(venom_id);
+                            vec_anchor_id.push_back(frame_id);
+                        }
+                    }
+                }
+
+                
+                venom_association_ = std::vector<std::vector<std::pair<int /*frame_id*/, Eigen::Matrix3d /*Rcm*/>>>(vec_anchor_id.size(), std::vector<std::pair<int /*frame_id*/, Eigen::Matrix3d /*Rcm*/>>());
+
+                for (int i = 0; i < vec_anchor_id.size(); i++) // visit all anchors
+                {
+                    // target
+                    int anchor_frame_id = vec_anchor_id[i];                             // which frame
+                    int anchor_venom_type = vec_venom_anchors[i].first;                 // which venom
+                    Eigen::Matrix3d anchor_rot_cam_venom = vec_venom_anchors[i].second; // rotation Rcm
+                    // save anchor
+                    venom_association_[i].push_back(std::make_pair(anchor_frame_id, anchor_rot_cam_venom));
+
+                    std::vector<std::pair<int, Eigen::Matrix3d>> anchor_rotation_from_venom;
+                    std::vector<std::pair<int, Eigen::Matrix3d>> anchor_rotation_from_groundtruth;
+
+                    for (int j = 0; j < ptr_robot_trajectory_->obs_mw_.size(); j++) // visit all frames
+                    {
+                        int venom_type = ptr_robot_trajectory_->obs_mw_[j][0].first;
+                        Eigen::Matrix3d rot_cam_venom = ptr_robot_trajectory_->obs_mw_[j][0].second;
+                        // save other frames
+                        if (venom_type == anchor_venom_type)
+                        {
+                            venom_association_[i].push_back(std::make_pair(j, rot_cam_venom));
+                            // compute
+                            // YanyanTODO:
+                            Eigen::Matrix3d rot = anchor_rot_cam_venom * rot_cam_venom.transpose();
+                            // std::cout << "rot_anchor 1: " << rot << std::endl;
+
+                            anchor_rotation_from_venom.push_back(std::make_pair(j, rot));
+
+                            Eigen::Matrix3d rot_anchor = ptr_robot_trajectory_->vec_traject_gt_Twc_[anchor_frame_id].block(0, 0, 3, 3);
+                            Eigen::Matrix3d rot_anchor1 = ptr_robot_trajectory_->vec_traject_gt_Twc_[j].block(0, 0, 3, 3);
+                            Eigen::Matrix3d relative_rot = rot_anchor.transpose() * rot_anchor1;
+                            // std::cout << "relative_rot 2: " << relative_rot << std::endl;
+                            anchor_rotation_from_groundtruth.push_back(std::make_pair(j, relative_rot));
+                        }
+                    }
+
+                    rotation_from_venom_.push_back(anchor_rotation_from_venom);
+                    rotation_from_groundtruth_.push_back(anchor_rotation_from_groundtruth);
+                }
+
+                assert(rotation_from_groundtruth_.size()==rotation_from_venom_.size());
+
+            }
+
+            void RotationEstimationEGraph()
+            {
+                std::cout<<"\033[0;35m[Venom Similator Printer] Rotation Comparision between the Venom-based method and grount truth.\033[0m"<<std::endl;
+                for(int anchor_id=0; anchor_id<rotation_from_groundtruth_.size();anchor_id++)
+                {
+                    for(int i =0; i<rotation_from_groundtruth_[anchor_id].size(); i++)
+                    {
+                        assert(rotation_from_groundtruth_[anchor_id][i].first == rotation_from_venom_[anchor_id][i].first);
+                        int e_frame_gt_id = rotation_from_groundtruth_[anchor_id][i].first;
+                        Eigen::Matrix3d e_relative_pose_gt = rotation_from_groundtruth_[anchor_id][i].second;
+                        Eigen::Matrix3d e_relative_pose_venom = rotation_from_venom_[anchor_id][i].second;
+
+                        std::cout<<"\033[0;32mThe rotation motion between AnchorFrame "<<anchor_id<<" and Frame "<<e_frame_gt_id<<".\033[0m"<<std::endl
+                                 <<"ground truth: "<<std::endl<<
+                                 e_relative_pose_gt <<std::endl<<
+                                 "venom method: "<<std::endl<<
+                                 e_relative_pose_venom <<std::endl;
+
+                    }
+
+                }
+               
             }
    };
  
