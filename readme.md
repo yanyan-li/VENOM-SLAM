@@ -36,7 +36,7 @@ We have tested the library in **Ubuntu 18.04**, but it should be easy to compile
 
 #### 2.1 Your local environment
 
-#####  C++11 or C++0x Compiler
+#### C++11 or C++0x Compiler
 
 We use the new thread and chrono functionalities of C++11.
 
@@ -63,21 +63,13 @@ Optimization libraries are not installed in advance, but suggestions for install
 
 ## 3. Building Venom Simulator and Examples 
 
-Red point are ground truth **landmarks**, while reconstructed **mappoints** generated from noisy measurements are yellow. 
+Clone the repository:
 
-Trajectory: Cycle, Sphere and so on.
+```
+git clone https://github.com/yanyan-li/VENOM.git
+```
 
-##### 2.0 Interface of the system
-
-To help users build environments more conveniently, the following software interface is made to design your synthetic environment in a super simple way.
-
-<div align ="center">
-	<img src="images/home.gif">
-</div>
-
-You could select the numbers of camera frames, point and line landmarks in the environment via several swipe and click actions as shown in this figure. 
-
-The commands you need are:
+After making sure you have the environment with all required dependencies (see section 2), the following commands are used to build the system.
 
 ```
 cd venom
@@ -88,96 +80,33 @@ make
 ../bin/main_entrance 
 ```
 
+Then you will see **libVenomSimulator.so** at lib folder as well as the following software interface.
 
+<div align ="center">
+	<img src="images/interface.gif">
+</div>
 
-##### 2.1 Show Env
+#### 3.1 Build trajectory and landmarks
 
-```
-cd venom
-mkdir build
-cd build 
-cmake ..
-make
-../bin/show_estimator_env 
-```
+To help users build environments more conveniently, the interface is made to design your synthetic environment in a super simple way. First, you could select the numbers of **camera frames**, **points** and **lines** in the environment via several swipe and click actions as shown in this figure.  
 
+After determining those parameters, please click the "**Build&Fix Environment**" button to initialize the system. You will then see your own environment by clicking the "**Show Camera & Environment**" button. Specifically, red points and lines are ground truth **landmarks**, and green cameras are ground truth **poses**.
 
-![env](images/env.png)
-
-<h5 align="center">
-    Environment 1.
-</h5> 
-
-
-
-
-![env2](images/env2.png)
-
-<h5 align="center">
-    Environment 2.
-</h5> 
-<h5 align="center">
-    x: frame_id; y: Measurements detected by each frame.(Left: mappoints; Right: maplines. )
-</h5> 
 ![line-point-meas](images/line-point-meas.png)
 
-<h5 align="center">
-    Figure. Left image shows a trajectory, while venom anchors are detected in the right image. 
-</h5> 
+<h6 align="center">
+Figure. x-axis: frame_id; y-axis: measurements detected by each frame. (Left: mappoints; Right: maplines.)
+</h6> 
 
-![venom](images/venom.png)
-
-
-
-##### 2.2 Optimization map points 
-
-Commands for testing the simulator
-
-```
-cd venom
-mkdir build
-cd build
-cmake ..
-make
-cd ../bin
-./test_pointBA
-```
-
-![environment](images/environment.png)
+#### 3.2 Reconstruct mappoints based on measurements
 
 
 
-### Related Publications:
+<div align ="center">
+	<img src="images/recon.gif">
+</div>
 
-If you use Venom in an academic work, please cite:
-
-```
-inproceedings{Li2021PlanarSLAM,
-  author = {Li, Yanyan and Yunus, Raza and Brasch, Nikolas and Navab, Nassir and Tombari, Federico},
-  title = {RGB-D SLAM with Structural Regularities},
-  year = {2021},
-  booktitle = {2021 IEEE international conference on Robotics and automation (ICRA)},
- }
-```
-```
-inproceedings{Li2020SSLAM,
-  author = {Li, Yanyan and Brasch, Nikolas and Wang, Yida and Navab, Nassir and Tombari, Federico},
-  title = {Structure-SLAM: Low-Drift Monocular SLAM in Indoor Environments},
-  year = {2020},
-  booktitle = {IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)},
- }
-```
-
-```
-@article{li2022graph,
-  title={E-Graph: Minimal Solution for Rigid Rotation with Extensibility Graphs},
-  author={Li, Yanyan and Tombari, Federico},
-  journal={arXiv preprint arXiv:2207.10008 (ECCV2022)},
-  year={2022}
-}
-```
+#### 
 
 
-
-### Acknowledgement
 
