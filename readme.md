@@ -100,7 +100,7 @@ Figure. x-axis: frame_id; y-axis: measurements detected by each frame. (Left: ma
 
 #### 3.2 Reconstruct mappoints based on measurements
 
-
+*Measurements*.  When we reproject environment information into camera frames, we can obtain ground truth measurements for simulating detected features (yellow color) by adding noise.
 
 <div align ="center">
 	<img src="images/recon.gif">
@@ -108,17 +108,17 @@ Figure. x-axis: frame_id; y-axis: measurements detected by each frame. (Left: ma
 
 #### 3.3  Extensibility Graph 
 
-
+Extensibility Graph (E-Graph) is proposed by [our paper](https://arxiv.org/pdf/2207.10008.pdf). The idea of the E-Graph is very simple, which aims to connect frames without overlaps. 
 
 <div align ="center">
 	<img src="images/venom.gif">
 </div>
 
-#### 
+As shown, the blue cameras were used to mark anchors because they first detected non-parallel direction vectors (here called venom). Edges between an anchor and other frames mean that the same venom was detected by those frames.
 
 ## 4. Evaluation 
 
-Rotation between two remote frames based on Venom
+Rotation between two remote frames based on Venom.
 
 
 
