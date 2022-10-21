@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-17 15:22:39
- * @LastEditTime: 2022-10-16 13:35:57
+ * @LastEditTime: 2022-10-20 15:59:36
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: This class is to generate different types of camera poses. 
  * @FilePath: /venom/src/estimator/Trajectory.hpp
@@ -33,6 +33,17 @@ namespace simulator
             // LINE = 4
         };
 
+        struct CamIntrinsic
+        {
+            double fx = 517.306408;
+            double fy = 516.469215;
+            double cx = 318.643040;
+            double cy = 255.313989;
+            int width = 640;
+            int height = 480;
+
+        }cam_intri;
+
         /**
          * @brief Initialization
          * 
@@ -61,6 +72,7 @@ namespace simulator
                 return; 
         };
 
+        
         bool GenerateTrajectory(const TrajectoryType &traject_type, const int &num_keyframe)
         {
             if (num_keyframe < 2)
@@ -202,7 +214,7 @@ namespace simulator
         void SetKeyFrameDetects(int frame_id, int manhattanworld_id, Eigen::Matrix3d mw_measument)
         {
             contain_mw_cams_[frame_id]++;
-            std::cout<<"contain_mw_cams_[id]:"<<contain_mw_cams_[frame_id]<<std::endl;
+            // std::cout<<"contain_mw_cams_[id]:"<<contain_mw_cams_[frame_id]<<std::endl;
             AddObservation(frame_id, manhattanworld_id, mw_measument);
         }
         // 

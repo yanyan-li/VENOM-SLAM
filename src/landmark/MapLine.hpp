@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-09-17 16:49:21
- * @LastEditTime: 2022-10-17 14:58:43
+ * @LastEditTime: 2022-10-21 16:39:36
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/src/landmark/MapLine.hpp
@@ -52,16 +52,68 @@ namespace simulator
        public:
            MapLine(const int id, Trajectory* traject):num_id_(id),observed(0),traject_(traject)
            {
+               // noise
+               
+               
                double max_nt = 0.1; double max_nq = 1.*M_PI/180.; double max_pixel_n = 1./240;
+               
+               //double max_pixel_n =1;
+
                std::random_device rd;
                std::default_random_engine generator(rd());
                std::normal_distribution<double> nt(0., max_nt);
                std::normal_distribution<double> nq(0., max_nq);
                std::normal_distribution<double> pixel_n(0, max_pixel_n);
- 
-               generator_ = generator;
+               
+               //std::normal_distribution<double> pixel_n(1, max_pixel_n);
                pixel_n_ = pixel_n;
+               generator_ = generator;
+               //pixel_n_ = pixel_n;
+
            };
+
+           void AddNoise(Eigen::Matrix<double,3,2> &ob_gt, Eigen::Matrix<double, 3, 2> &ob_noise)
+           {
+            Eigen::Matrix2d pixel_line;
+            //
+            Reproject(ob_gt, pixel_line); 
+
+            // 
+
+            //std::random_device rd;
+            //std::default_random_engine generator(rd());
+            Eigen::Matrix2d noise;
+            noise<<pixel_n_(generator_),pixel_n_(generator_),pixel_n_(generator_),pixel_n_(generator_);
+
+            std::cout<<"pixel_line: "<<pixel_line<<", noise:"<<noise<<std::endl; 
+
+
+
+
+           }
+
+           void Reproject(Eigen::Matrix<double,3,2> &ob_gt, Eigen::Matrix2d &pixel_gt)
+           {
+            Eigen::Vector3d start_point = ob_gt.block(0,0,3,1);
+            Eigen::Vector3d end_point = ob_gt.block(0,1,3,1);
+
+            // (u-cx)/fx = x
+            double fx = traject_->cam_intri.fx;
+            double fy = traject_->cam_intri.fy;
+            double cx = traject_->cam_intri.cx;
+            double cy = traject_->cam_intri.cy;
+
+            double start_u = fx * start_point(0)/start_point(2) + cx; 
+            double start_v = fy * start_point(1)/start_point(2) + cy; 
+
+            double end_u = fx * end_point(0)/end_point(2) + cx; 
+            double end_v = fy * end_point(1)/end_point(2) + cy;
+
+
+            pixel_gt(0,0) = start_u; pixel_gt(0,1)=end_u;
+            pixel_gt(1,0) = start_v; pixel_gt(1,1)=end_v;
+
+           }
 
            void GenerateMapLine(const double distance, std::string axis)
            {
@@ -164,23 +216,31 @@ namespace simulator
                    // vec：camera id,  
                    // vec: line id, 
                    // Eigen::Matrix<double,3,2>
-                   traject_->SetKeyFrameDetects(i, this->num_id_, ob); 
-                   //std::cout<<"the "<<i<<" th camera. "<<trajec_.contain_mp_cams_[i]<<std::endl;
-                   observed++;
+                //    traject_->SetKeyFrameDetects(i, this->num_id_, ob); 
+                //    //std::cout<<"the "<<i<<" th camera. "<<trajec_.contain_mp_cams_[i]<<std::endl;
+                //    observed++;
                   
                    // observation: <key: Trajectory_id, value: 该相机坐标系下的(x_0,y_0,1)>d
                    
                    vec_obs_gt_.emplace_back(i,ob); 
-                   if(add_nose && vec_obs_gt_.size() > 1)
-                       if (add_nose)
-                       {
-                           Eigen::Matrix<double,3,2> noise;
-                           noise<< pixel_n_(generator_), pixel_n_(generator_),
-                                   pixel_n_(generator_), pixel_n_(generator_),
-                                   0, 0;
-                           //std::cout<<"noise:"<<noise<<std::endl;       
-                           ob += noise;
-                       }
+
+                   
+                   //if(add_nose && vec_obs_gt_.size() > 1)
+                    if (add_nose)
+                    {
+                        Eigen::Matrix<double,3,2> noise;
+                        AddNoise(ob, noise);
+                        noise<< pixel_n_(generator_), pixel_n_(generator_),
+                                pixel_n_(generator_), pixel_n_(generator_),
+                                0, 0;
+                        //std::cout<<"noise:"<<noise<<std::endl;       
+                        ob += noise;
+                    }
+                    traject_->SetKeyFrameDetects(i, this->num_id_, ob); 
+                    //std::cout<<"the "<<i<<" th camera. "<<trajec_.contain_mp_cams_[i]<<std::endl;
+                    observed++;   
+
+
                    vec_obs_.emplace_back(i,ob); //obs.emplace_back(i, ob);
                }
  

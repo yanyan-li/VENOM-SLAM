@@ -1,7 +1,7 @@
 /*** 
  * @Author: yanyan-li yanyan.li.camp@gmail.com
  * @Date: 2022-10-06 02:37:57
- * @LastEditTime: 2022-10-17 16:13:50
+ * @LastEditTime: 2022-10-21 17:12:47
  * @LastEditors: yanyan-li yanyan.li.camp@gmail.com
  * @Description: 
  * @FilePath: /venom/src/visulizer/Interface.hpp
@@ -55,6 +55,9 @@ namespace simulator
            // rotation estimation
            std::vector<std::vector< std::pair<int, Eigen::Matrix3d> >> rotation_from_venom_;
            std::vector<std::vector< std::pair<int, Eigen::Matrix3d> >> rotation_from_groundtruth_; 
+
+           // predicted rot_cw 
+           std::vector<std::pair<int/*frame_id*/,  Eigen::Matrix4d/*frame_pose*/>> vec_traject_estimated_Twc_;
  
 
         
@@ -88,7 +91,7 @@ namespace simulator
             void StartVenom()
             {
                 //--> interface
-                pangolin::CreateWindowAndBind(" VENOM (0.0.2) SLAM (backend) Simulator", 1024, 768);
+                pangolin::CreateWindowAndBind(" VENOM (0.1.0) SLAM (backend) Simulator", 1024, 768);
                 // 3D Mouse handler requires depth testing to be enabled
                 glEnable(GL_DEPTH_TEST);
                 // Issue specific OpenGl we might need
@@ -207,6 +210,7 @@ namespace simulator
                             std::cout << std::endl
                                       << "\033[0;35m [Venom Similator Printer] Show environments and cameras. \033[0m" << std::endl;
                             set_start_means_click_once = false;
+
                         }
                     }
 
@@ -219,7 +223,8 @@ namespace simulator
                             // 
                             // start the track module
                             StartTracking();
-                            
+                            ptr_tracker_->SaveFrameGTTrajectoryLovelyTUM("ground_truth.txt");
+
                             // mappoint reconstruction based on observations 
                             ptr_tracker_->Triangulation(vec_meas_keyframe_mp, ptr_robot_trajectory_->vec_traject_gt_Twc_);
                             
@@ -790,8 +795,17 @@ namespace simulator
                             // YanyanTODO:
                             Eigen::Matrix3d rot = anchor_rot_cam_venom * rot_cam_venom.transpose();
                             // std::cout << "rot_anchor 1: " << rot << std::endl;
-
                             anchor_rotation_from_venom.push_back(std::make_pair(j, rot));
+
+                            // predicted pose
+                            Eigen::Matrix4d Twc_anchor = ptr_robot_trajectory_->vec_traject_gt_Twc_[anchor_frame_id];
+                            Eigen::Matrix3d Rwc_j =  Twc_anchor.block(0,0,3,3)*rot;
+                            // fack translation
+                            Eigen::Matrix4d Twc_j = Eigen::Matrix4d::Zero();
+                            Twc_anchor.block(0,0,3,3) = Rwc_j; 
+                            vec_traject_estimated_Twc_.push_back(std::make_pair(j, Twc_anchor));
+                            
+                            
 
                             Eigen::Matrix3d rot_anchor = ptr_robot_trajectory_->vec_traject_gt_Twc_[anchor_frame_id].block(0, 0, 3, 3);
                             Eigen::Matrix3d rot_anchor1 = ptr_robot_trajectory_->vec_traject_gt_Twc_[j].block(0, 0, 3, 3);
@@ -806,6 +820,8 @@ namespace simulator
                 }
 
                 assert(rotation_from_groundtruth_.size()==rotation_from_venom_.size());
+                std::cout<<"s"<<std::endl;
+                ptr_tracker_->SaveFramePredictedTrajectoryLovelyTUM("estimation.txt", vec_traject_estimated_Twc_);
 
             }
 
@@ -830,6 +846,8 @@ namespace simulator
                     }
 
                 }
+
+                
                
             }
    };

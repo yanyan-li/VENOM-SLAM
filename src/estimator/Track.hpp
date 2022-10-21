@@ -8,8 +8,10 @@
  */
 
 #include <algorithm>
+#include <iostream>
 #include <opencv2/core/core.hpp>
 #include <opencv2/core/eigen.hpp>
+
 #include "Trajectory.hpp"
 #include "../landmark/MapVenom.hpp"
 #include "../landmark/MapLine.hpp"
@@ -354,6 +356,45 @@ namespace simulator
                 tri_point_inverse_depth_.push_back(1 / point_camera(2));
                 tri_point_xyz_.push_back(point_w);
             }
+        }
+
+        void SaveFrameGTTrajectoryLovelyTUM(const std::string &filename)
+        {
+            std::cout << "\033[0;33m [Venom Simulator Printer] Saving keyframe trajectory to " << filename << ".\033[0m" << std::endl;
+            
+            std::ofstream pose_file;
+            pose_file.open(filename);
+            for (size_t i = 0, i_end = robot_traject_->vec_traject_gt_Twc_.size(); i < i_end; i++)
+            {
+                Eigen::Matrix4d Twc_i = robot_traject_->vec_traject_gt_Twc_[i];
+                Eigen::Matrix3d R = Twc_i.block(0,0,3,3);
+
+                Eigen::Quaterniond quat(R);
+                Eigen::Vector3d trans = Twc_i.block(0, 3, 3, 1);
+                pose_file << i << " " << trans(0) << " " << trans(1) << " " << trans(2) << " " << quat.x() << " " << quat.y() << " " << quat.z() << " " << quat.w() << std::endl;
+            }
+
+            pose_file.close();
+        }
+
+        void SaveFramePredictedTrajectoryLovelyTUM(const std::string &filename, std::vector<std::pair<int/*frame_id*/,  Eigen::Matrix4d/*frame_pose*/>> &vec_Twcs)
+        {
+            std::cout << "\033[0;33m [Venom Simulator Printer] Saving keyframe trajectory to " << filename << ".\033[0m" << std::endl;
+            
+            std::ofstream pose_file;
+            pose_file.open(filename);
+            for (size_t i = 0, i_end = vec_Twcs.size(); i < i_end; i++)
+            {   
+                int frame_id = vec_Twcs[i].first;
+                Eigen::Matrix4d  Twc_i = vec_Twcs[i].second;
+                Eigen::Matrix3d R = Twc_i.block(0,0,3,3);
+
+                Eigen::Quaterniond quat(R);
+                Eigen::Vector3d trans = Twc_i.block(0, 3, 3, 1);
+                pose_file << frame_id << " " << trans(0) << " " << trans(1) << " " << trans(2) << " " << quat.x() << " " << quat.y() << " " << quat.z() << " " << quat.w() << std::endl;
+            }
+
+            pose_file.close();
         }
     };
 }
