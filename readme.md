@@ -12,7 +12,6 @@
     <img src="https://img.shields.io/badge/License-GPL%20v3-blue.svg"></a>
     <a href="https://github.com/yanyan-li/VENOM/blob/master/version.md"><img src="https://img.shields.io/badge/Version-0.1.0-green.svg"></a>
 </p>
-
 **Authors:** Yanyan Li, Liang Zhao and Federico Tombari
 
 A simulator is a super important tool for testing SLAM modules, especially for newly proposed ideas, as it is easy to check the validity of your ideas in a controlled environment. 
@@ -119,6 +118,13 @@ As shown, the blue cameras were used to mark anchors because they first detected
 ## 4. Evaluation 
 
 Rotation between two remote frames based on Venom.
+
+After the process, you will find "estimation.txt" and "ground_truth.txt" in the build folder. Then, the **estimated rotation** based on venom can be evaluated based on [EVO](https://github.com/MichaelGrupp/evo).
+
+<div align ="center">
+	<img src="images/rot_rpe.png">
+</div>
+
 
 
 
