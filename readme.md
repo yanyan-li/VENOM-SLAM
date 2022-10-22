@@ -117,9 +117,9 @@ As shown, the blue cameras were used to mark anchors because they first detected
 
 ## 4. Evaluation 
 
-Rotation between two remote frames based on Venom.
+Rotation between **two remote frames that maybe have no overlaops** based on Venom.
 
-After the process, you will find "estimation.txt" and "ground_truth.txt" in the build folder. Then, the **estimated rotation** based on venom can be evaluated based on [EVO](https://github.com/MichaelGrupp/evo).
+After the process, you will find "estimation.txt" and "ground_truth.txt" in the build folder. Then, the **estimated rotation** based on venom can be evaluated via [EVO](https://github.com/MichaelGrupp/evo).
 
 <div align ="center">
 	<img src="images/rot_rpe.png">
