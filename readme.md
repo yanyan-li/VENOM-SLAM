@@ -7,7 +7,7 @@
 <p align="center">
   <a href="https://eccv2022.ecva.net"><img src="https://img.shields.io/badge/ECCV-2022-4b44ce.svg"></a>
   <a href="https://arxiv.org/pdf/2207.10008.pdf"><img src="http://img.shields.io/badge/Paper-PDF-red.svg"></a>
-  <a href="https://TORELEASE"><img src="https://img.shields.io/badge/Video-YouTube-green.svg"></a>
+  <a href="https://www.youtube.com/watch?v=lv7omGWBApM"><img src="https://img.shields.io/badge/Video-YouTube-green.svg"></a>
   <a href="https://github.com/yanyan-li/VENOM/blob/master/LICENSE">
     <img src="https://img.shields.io/badge/License-GPL%20v3-blue.svg"></a>
     <a href="https://github.com/yanyan-li/VENOM/blob/master/version.md"><img src="https://img.shields.io/badge/Version-0.1.0-green.svg"></a>
